@@ -1,55 +1,55 @@
 import { Container } from '@/components/layout'
 import {
-  Zap,
-  Globe,
+  Search,
+  Network,
   Shield,
   Layers,
-  Cpu,
-  Clock,
+  Brain,
+  Zap,
   Code2,
-  ImageIcon,
+  GitBranch,
 } from 'lucide-react'
 
 const features = [
   {
-    icon: Zap,
-    title: 'Blazing Fast',
-    description: 'Sub-500ms response times with smart pre-warming and caching.',
+    icon: Search,
+    title: 'Semantic Search',
+    description: 'Vector-powered search finds relevant memories based on meaning, not keywords.',
   },
   {
-    icon: Globe,
-    title: 'Global Edge Network',
-    description: '50+ edge locations for low-latency screenshot capture worldwide.',
+    icon: Network,
+    title: 'Knowledge Graph',
+    description: 'Automatic entity extraction and relationship mapping for connected memories.',
   },
   {
     icon: Shield,
-    title: 'Enterprise Security',
-    description: 'SOC 2 compliant with encrypted storage and secure API access.',
+    title: 'Multi-tenant Isolation',
+    description: 'API Key-based data isolation ensures complete separation between users.',
   },
   {
     icon: Layers,
-    title: 'Multiple Formats',
-    description: 'Export to PNG, JPEG, WebP, or PDF with customizable quality.',
+    title: 'Rich Metadata',
+    description: 'Store custom metadata, tags, and timestamps with each memory.',
   },
   {
-    icon: Cpu,
-    title: 'Smart Rendering',
-    description: 'Chromium-based rendering with JavaScript execution support.',
+    icon: Brain,
+    title: 'LLM Integration',
+    description: 'Built-in entity and relation extraction using state-of-the-art language models.',
   },
   {
-    icon: Clock,
-    title: 'Scheduled Captures',
-    description: 'Automate recurring screenshots with cron-like scheduling.',
+    icon: Zap,
+    title: 'Fast & Scalable',
+    description: 'Sub-100ms search latency with pgvector-powered vector similarity.',
   },
   {
     icon: Code2,
     title: 'Developer First',
-    description: 'RESTful API with webhooks, SDKs, and comprehensive docs.',
+    description: 'RESTful API with webhooks, comprehensive docs, and easy integration.',
   },
   {
-    icon: ImageIcon,
-    title: 'Image Processing',
-    description: 'Built-in cropping, resizing, and watermarking capabilities.',
+    icon: GitBranch,
+    title: 'Graph Traversal',
+    description: 'Navigate relationships, find paths, and explore connected knowledge.',
   },
 ]
 
@@ -63,7 +63,7 @@ export function FeaturesSection() {
             FEATURES
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Everything you need for production-grade screenshot automation
+            Everything you need for production-grade memory infrastructure
           </p>
         </div>
 

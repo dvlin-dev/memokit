@@ -1,6 +1,6 @@
 import { Container } from '@/components/layout'
 import { Button } from '@memory/ui/primitives'
-import { ArrowRight, Zap } from 'lucide-react'
+import { ArrowRight, Brain } from 'lucide-react'
 
 export function HeroSection() {
   return (
@@ -12,21 +12,21 @@ export function HeroSection() {
         <div className="flex flex-col items-center py-24 text-center md:py-32 lg:py-40">
           {/* Badge */}
           <div className="mb-6 inline-flex items-center gap-2 border border-border bg-muted/50 px-3 py-1 font-mono text-xs">
-            <Zap className="h-3 w-3" />
-            <span>Screenshot API for Modern Developers</span>
+            <Brain className="h-3 w-3" />
+            <span>Semantic Memory API for AI Agents</span>
           </div>
 
           {/* Headline */}
           <h1 className="max-w-4xl font-mono text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-            CAPTURE ANY WEBPAGE
+            GIVE YOUR AI
             <br />
-            <span className="text-muted-foreground">IN MILLISECONDS</span>
+            <span className="text-muted-foreground">LONG-TERM MEMORY</span>
           </h1>
 
           {/* Subheadline */}
           <p className="mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
-            High-performance screenshot API with instant rendering, smart caching,
-            and pixel-perfect output. Built for scale.
+            Semantic memory infrastructure for AI applications. Store, search, and
+            retrieve memories with vector embeddings and knowledge graphs.
           </p>
 
           {/* CTA Buttons */}
@@ -52,11 +52,11 @@ export function HeroSection() {
             </div>
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 bg-blue-500" />
-              <span className="font-mono">&lt;500ms Response</span>
+              <span className="font-mono">&lt;100ms Search</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 bg-purple-500" />
-              <span className="font-mono">Global CDN</span>
+              <span className="font-mono">pgvector Powered</span>
             </div>
           </div>
         </div>

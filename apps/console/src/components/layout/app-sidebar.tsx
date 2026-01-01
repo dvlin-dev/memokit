@@ -5,10 +5,9 @@ import {
   LayoutDashboard,
   Play,
   Key,
-  Image,
   Webhook,
   Settings,
-  Link2,
+  Brain,
 } from 'lucide-react'
 
 import { NavMain, type NavGroup } from '@/components/layout/nav-main'
@@ -29,21 +28,13 @@ const navGroups: NavGroup[] = [
     // 概览 - 无分组标签
     items: [
       { title: 'Dashboard', url: '/', icon: LayoutDashboard },
-      {
-        title: 'Playground',
-        icon: Play,
-        items: [
-          { title: 'Screenshot', url: '/playground/screenshot' },
-          { title: 'Embed', url: '/playground/embed' },
-        ],
-      },
+      { title: 'Playground', url: '/playground', icon: Play },
     ],
   },
   {
     label: 'API',
     items: [
       { title: 'API Keys', url: '/api-keys', icon: Key },
-      { title: 'Screenshots', url: '/screenshots', icon: Image },
       { title: 'Webhooks', url: '/webhooks', icon: Webhook },
     ],
   },
@@ -73,7 +64,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="/">
-                <Link2 className="!size-5" />
+                <Brain className="!size-5" />
                 <span className="text-base font-semibold">Memory</span>
               </a>
             </SidebarMenuButton>
