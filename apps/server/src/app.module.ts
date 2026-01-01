@@ -9,16 +9,11 @@ import { EmailModule } from './email';
 import { AuthModule } from './auth';
 import { UserModule } from './user';
 import { PaymentModule } from './payment';
-import { StorageModule } from './storage';
 import { HealthModule } from './health';
 import { ApiKeyModule } from './api-key';
 import { QuotaModule } from './quota';
-import { BrowserModule } from './browser';
-import { ScreenshotModule } from './screenshot';
 import { WebhookModule } from './webhook';
 import { AdminModule } from './admin';
-import { OembedModule } from './oembed';
-import { DemoModule } from './demo/demo.module';
 
 @Module({
   imports: [
@@ -33,16 +28,11 @@ import { DemoModule } from './demo/demo.module';
     AuthModule,
     UserModule,
     PaymentModule,
-    StorageModule,
     HealthModule,
     ApiKeyModule,
     QuotaModule,
-    BrowserModule,
-    ScreenshotModule,
     WebhookModule,
     AdminModule,
-    OembedModule,
-    DemoModule,
   ],
 })
 export class AppModule implements NestModule {
