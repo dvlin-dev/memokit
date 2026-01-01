@@ -1,0 +1,17 @@
+{
+  "name": "memory",
+  "private": true,
+  "scripts": {
+    "dev:server": "pnpm --filter @memory/server start:dev",
+    "dev:console": "pnpm --filter @memory/console dev",
+    "build:server": "pnpm --filter @memory/server build",
+    "build:console": "pnpm --filter @memory/console build",
+    "build": "pnpm run build:server && pnpm run build:console",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.12",
+    "typescript": "^5.9.3"
+  }
+}

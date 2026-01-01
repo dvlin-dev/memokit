@@ -1,0 +1,23 @@
+/**
+ * 共享类型定义
+ */
+
+/** API 响应包装 */
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+}
+
+/** 分页信息 */
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+/** 分页响应 */
+export interface PaginatedResponse<T> {
+  items: T[];
+  pagination: Pagination;
+}
