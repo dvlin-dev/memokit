@@ -1133,6 +1133,233 @@ volumes:
 
 ---
 
+---
+
+## 迁移完成记录
+
+### 状态总览
+
+| 阶段 | 状态 | Commit |
+|------|------|--------|
+| Phase 1 | ✅ 完成 | 项目初始化、全局重命名 |
+| Phase 2 | ✅ 完成 | 清理 Screenshot/Browser/Storage 模块 |
+| Phase 3 | ✅ 完成 | 拆分订阅/配额/用量模块 |
+| Phase 4 | ✅ 完成 | 添加公共模块 |
+| Phase 5 | ✅ 完成 | `Phase 5: Add Memory core modules` |
+| Phase 6 | ✅ 完成 | `Phase 6: Add initial database migration` |
+| Phase 7 | ✅ 完成 | `Phase 7: Update frontend apps for Memory platform` |
+| Phase 8 | ✅ 完成 | `Phase 8: Add deployment configuration` |
+
+**仓库地址:** https://github.com/dvlin-dev/memokit
+
+---
+
+### Phase 5: Memory 核心模块迁移
+
+#### 创建的模块
+
+从 Memory Server 迁移并改造了 7 个核心模块：
+
+```
+apps/server/src/
+├── embedding/          # 向量嵌入服务
+├── llm/               # LLM 集成服务
+├── memory/            # 记忆存储与搜索
+├── entity/            # 实体管理
+├── relation/          # 关系管理
+├── graph/             # 知识图谱遍历
+└── extract/           # 实体关系抽取
+```
+
+#### 核心设计: 多租户数据隔离
+
+所有核心模块通过 `apiKeyId` 实现数据隔离，采用 Repository 模式封装：
+
+```
+Controller
+    ↓ @ApiKeyId() 装饰器注入
+Service
+    ↓ 传递 apiKeyId
+Repository (继承 BaseRepository<T>)
+    ↓ withApiKeyFilter() 自动添加过滤条件
+Prisma
+```
+
+**BaseRepository 核心逻辑:**
+- `findMany(apiKeyId, options)` - 自动添加 `WHERE apiKeyId = ?`
+- `create(apiKeyId, data)` - 自动注入 `apiKeyId` 字段
+- `update/delete` - 先验证记录归属再操作
+
+#### 各模块职责
+
+| 模块 | 职责 | 关键方法 |
+|------|------|----------|
+| embedding | 文本向量化 | `embed(text)`, `embedBatch(texts)` |
+| llm | LLM 调用封装 | `chat(messages, options)` |
+| memory | 记忆 CRUD + 语义搜索 | `create()`, `search()`, `list()` |
+| entity | 实体 CRUD | `create()`, `findByType()`, `batch()` |
+| relation | 关系 CRUD | `create()`, `findByEntity()` |
+| graph | 图谱遍历查询 | `traverse()`, `findPath()`, `getNeighbors()` |
+| extract | 从文本抽取实体关系 | `extractFromText()`, `preview()` |
+
+#### 模块依赖关系
+
+```
+extract
+  ├─→ llm (调用 LLM 进行抽取)
+  ├─→ entity (保存抽取的实体)
+  └─→ relation (保存抽取的关系)
+
+memory
+  └─→ embedding (生成向量用于语义搜索)
+
+graph
+  ├─→ entity (获取实体)
+  └─→ relation (获取关系)
+```
+
+---
+
+### Phase 6: 数据库迁移
+
+#### Prisma Schema 核心表结构
+
+**平台层（复用 linksnap）:**
+- `User` - 平台用户，包含 `isAdmin` 字段
+- `Session` / `Account` - Better Auth 会话管理
+- `ApiKey` - API 密钥，SHA256 哈希存储
+- `Subscription` - 订阅状态 (FREE/HOBBY/ENTERPRISE)
+- `Quota` - 固定配额计数器（FREE/HOBBY 用）
+- `UsageRecord` - 用量记录（Enterprise 按量计费用）
+
+**核心层（迁移自 Memory Server）:**
+- `Memory` - 记忆存储，含 `embedding: vector(1024)`
+- `Entity` - 实体，含向量和唯一约束 `(apiKeyId, userId, type, name)`
+- `Relation` - 关系，包含 `sourceId` → `targetId`
+
+#### 向量索引策略
+
+使用 IVFFlat 索引实现高效语义搜索：
+
+```sql
+-- 100 个聚类列表，适合中等规模数据
+CREATE INDEX idx_memories_embedding ON memories
+  USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+
+CREATE INDEX idx_entities_embedding ON entities
+  USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+```
+
+**注意:** IVFFlat 需要先有数据再建索引，建议数据量 > 1000 后重建索引。
+
+---
+
+### Phase 7: 前端更新
+
+#### Console 应用改造
+
+**删除的页面:**
+- Screenshot Playground 及相关组件
+
+**新增的页面:**
+- `MemoryPlaygroundPage.tsx` - Memory API 测试工具
+
+**改造逻辑:**
+1. 左侧表单输入 userId + content
+2. 调用 `POST /api/v1/memories` 创建记忆
+3. 支持 `POST /api/v1/memories/search` 语义搜索
+4. 右侧展示 JSON 响应结果
+
+**侧边栏更新:**
+```
+Dashboard    → /
+Playground   → /playground (Memory 测试)
+API Keys     → /api-keys
+Webhooks     → /webhooks
+Settings     → /settings
+```
+
+#### WWW 应用改造
+
+**HeroSection:**
+- 标题改为 "GIVE YOUR AI LONG-TERM MEMORY"
+- 副标题强调语义搜索和知识图谱
+
+**FeaturesSection (8 个特性):**
+1. Semantic Search - pgvector 向量搜索
+2. Knowledge Graph - 自动实体抽取
+3. Multi-tenant Isolation - apiKeyId 数据隔离
+4. Rich Metadata - 自定义元数据存储
+5. LLM Integration - 内置实体关系抽取
+6. Fast & Scalable - <100ms 搜索延迟
+7. Developer First - RESTful API + Webhooks
+8. Graph Traversal - 关系遍历和路径查询
+
+**PricingSection (3 层定价):**
+| Plan | 价格 | Memories | API Calls |
+|------|------|----------|-----------|
+| Free | $0 | 10,000 | 1,000/月 |
+| Hobby | $19/月 | 50,000 | 5,000/月 |
+| Enterprise | 按量 | Unlimited | Unlimited |
+
+---
+
+### Phase 8: 部署配置
+
+#### Docker Compose 服务架构
+
+```yaml
+services:
+  db:         # pgvector/pgvector:pg16 - 带向量扩展的 PostgreSQL
+  redis:      # redis:7-alpine - 缓存和队列
+  server:     # NestJS API - 端口 3000
+  console:    # 用户 Dashboard - 端口 3001
+  admin:      # 管理后台 - 端口 3002
+  www:        # 官网 - 端口 3003
+```
+
+#### 关键环境变量
+
+| 变量 | 用途 |
+|------|------|
+| `DATABASE_URL` | PostgreSQL 连接串 |
+| `REDIS_URL` | Redis 连接串 |
+| `OPENAI_API_KEY` | 向量嵌入和 LLM |
+| `BETTER_AUTH_SECRET` | 认证签名密钥 |
+| `CREEM_API_KEY` | 支付集成（可选） |
+
+#### 自托管模式
+
+禁用支付后，所有用户默认 Enterprise 权限：
+1. 不设置 `CREEM_API_KEY`
+2. 修改默认订阅层级为 ENTERPRISE
+3. 享受无限 Memory 和 API 调用
+
+---
+
+### 参考的核心模块
+
+迁移过程中主要参考了两个项目：
+
+**linksnap.dev (平台层):**
+- `apps/server/src/auth/` - Better Auth 认证
+- `apps/server/src/api-key/` - API Key 管理和 Guard
+- `apps/server/src/subscription/` - 订阅状态管理
+- `apps/server/src/quota/` - 配额检查
+- `apps/server/src/payment/` - Creem 支付集成
+- `apps/server/src/common/` - 拦截器、装饰器
+
+**memory-server (核心层):**
+- `packages/server/src/memory/` - 记忆服务
+- `packages/server/src/entity/` - 实体服务
+- `packages/server/src/relation/` - 关系服务
+- `packages/server/src/graph/` - 图谱服务
+- `packages/server/src/embedding/` - OpenAI 嵌入
+- `packages/server/src/llm/` - LLM 集成
+
+---
+
 *文档创建时间: 2026-01*
+*迁移完成时间: 2026-01-02*
 *基于项目: linksnap.dev + memory-server*
 *版本: v1.0*
