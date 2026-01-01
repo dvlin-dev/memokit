@@ -1,47 +1,26 @@
 /**
- * [INPUT]: API 请求 (X-API-Key 认证)
- * [OUTPUT]: QuotaStatusResponseDto
- * [POS]: 配额模块 API 路由，提供公开 API 端点
+ * [INPUT]: API 请求 (Session 认证)
+ * [OUTPUT]: QuotaStatus
+ * [POS]: 配额模块 API 路由
  */
 
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { QuotaService } from './quota.service';
-import { ApiKeyGuard } from '../api-key/api-key.guard';
-import { UseApiKey, CurrentApiKey } from '../api-key/api-key.decorators';
-import type { ApiKeyValidationResult } from '../api-key/api-key.types';
-import type { QuotaStatusResponseDto } from './dto';
+import { AuthGuard } from '../auth/auth.guard';
+import { CurrentUser } from '../auth/decorators';
+import type { User } from '@prisma/client';
 
-@Controller('api/v1')
-@UseGuards(ApiKeyGuard)
+@Controller('v1/quota')
+@UseGuards(AuthGuard)
 export class QuotaController {
   constructor(private readonly quotaService: QuotaService) {}
 
   /**
-   * 查询当前配额状态
-   * GET /api/v1/quota
-   *
-   * 需要 X-API-Key 认证
+   * 获取当前配额状态
+   * GET /v1/quota
    */
-  @Get('quota')
-  @UseApiKey()
-  async getQuotaStatus(
-    @CurrentApiKey() apiKey: ApiKeyValidationResult,
-  ): Promise<QuotaStatusResponseDto> {
-    const status = await this.quotaService.getStatus(apiKey.userId);
-
-    return {
-      success: true,
-      data: {
-        monthly: {
-          limit: status.monthly.limit,
-          used: status.monthly.used,
-          remaining: status.monthly.remaining,
-        },
-        purchased: status.purchased,
-        totalRemaining: status.totalRemaining,
-        periodEndsAt: status.periodEndsAt.toISOString(),
-        periodStartsAt: status.periodStartsAt.toISOString(),
-      },
-    };
+  @Get()
+  async getQuotaStatus(@CurrentUser() user: User) {
+    return this.quotaService.getQuotaStatus(user.id);
   }
 }

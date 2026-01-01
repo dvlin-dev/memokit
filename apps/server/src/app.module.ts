@@ -11,7 +11,9 @@ import { UserModule } from './user';
 import { PaymentModule } from './payment';
 import { HealthModule } from './health';
 import { ApiKeyModule } from './api-key';
+import { SubscriptionModule } from './subscription';
 import { QuotaModule } from './quota';
+import { UsageModule } from './usage';
 import { WebhookModule } from './webhook';
 import { AdminModule } from './admin';
 
@@ -30,7 +32,9 @@ import { AdminModule } from './admin';
     PaymentModule,
     HealthModule,
     ApiKeyModule,
+    SubscriptionModule,
     QuotaModule,
+    UsageModule,
     WebhookModule,
     AdminModule,
   ],

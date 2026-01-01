@@ -4,8 +4,5 @@
 
 export * from './quota.module';
 export * from './quota.service';
-export * from './quota.repository';
-export * from './quota.types';
+export * from './quota.guard';
 export * from './quota.constants';
-export * from './quota.errors';
-export * from './dto';

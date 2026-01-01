@@ -7,16 +7,19 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { QuotaController } from './quota.controller';
 import { QuotaService } from './quota.service';
-import { QuotaRepository } from './quota.repository';
-import { ApiKeyModule } from '../api-key/api-key.module';
+import { QuotaGuard } from './quota.guard';
+import { PrismaModule } from '../prisma';
+import { SubscriptionModule } from '../subscription';
+import { UsageModule } from '../usage';
 
 @Module({
   imports: [
-    // 使用 forwardRef 解决循环依赖
-    forwardRef(() => ApiKeyModule),
+    PrismaModule,
+    SubscriptionModule,
+    forwardRef(() => UsageModule),
   ],
   controllers: [QuotaController],
-  providers: [QuotaService, QuotaRepository],
-  exports: [QuotaService, QuotaRepository],
+  providers: [QuotaService, QuotaGuard],
+  exports: [QuotaService, QuotaGuard],
 })
 export class QuotaModule {}
