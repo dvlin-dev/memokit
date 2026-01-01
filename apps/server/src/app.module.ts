@@ -16,6 +16,14 @@ import { QuotaModule } from './quota';
 import { UsageModule } from './usage';
 import { WebhookModule } from './webhook';
 import { AdminModule } from './admin';
+// Memory Core Modules
+import { EmbeddingModule } from './embedding';
+import { LlmModule } from './llm';
+import { MemoryModule } from './memory';
+import { EntityModule } from './entity';
+import { RelationModule } from './relation';
+import { GraphModule } from './graph';
+import { ExtractModule } from './extract';
 
 @Module({
   imports: [
@@ -37,6 +45,14 @@ import { AdminModule } from './admin';
     UsageModule,
     WebhookModule,
     AdminModule,
+    // Memory Core Modules
+    EmbeddingModule,
+    LlmModule,
+    MemoryModule,
+    EntityModule,
+    RelationModule,
+    GraphModule,
+    ExtractModule,
   ],
 })
 export class AppModule implements NestModule {
