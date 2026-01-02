@@ -10,12 +10,15 @@ export const Route = createFileRoute('/docs/$')({
     const slugs = params._splat?.split('/').filter(Boolean) ?? []
     const page = source.getPage(slugs)
     if (!page) throw notFound()
-    return { page, slugs }
+    // Only return serializable data - page object with MDX body is fetched in component
+    return { slugs }
   },
 })
 
 function DocsPageComponent() {
-  const { page } = Route.useLoaderData()
+  const { slugs } = Route.useLoaderData()
+  // Get page in component to avoid serialization of MDX body function
+  const page = source.getPage(slugs)!
   const MDX = page.data.body
 
   return (

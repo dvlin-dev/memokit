@@ -12,7 +12,12 @@ export default defineConfig({
     cloudflare({ viteEnvironment: { name: 'ssr' } }),
     mdx(MdxConfig),
     tsconfigPaths(),
-    tanstackStart(),
+    tanstackStart({
+      prerender: {
+        enabled: true,
+        crawlLinks: true,
+      },
+    }),
     viteReact(),
     tailwindcss(),
   ],
