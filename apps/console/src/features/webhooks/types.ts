@@ -9,7 +9,7 @@ export interface ApiResponse<T> {
 }
 
 /** Webhook 事件类型 */
-export type WebhookEvent = 'screenshot.completed' | 'screenshot.failed'
+export type WebhookEvent = 'memory.created' | 'memory.updated' | 'memory.deleted'
 
 /** Webhook 列表项 */
 export interface Webhook {

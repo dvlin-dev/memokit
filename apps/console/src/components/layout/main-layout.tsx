@@ -32,7 +32,7 @@ export function MainLayout() {
         <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4 md:hidden">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="h-4" />
-          <span className="font-semibold">Moryflow</span>
+          <span className="font-semibold">Memokit</span>
         </header>
         {/* 主内容区 */}
         <main className="flex-1 overflow-auto p-4 md:p-6">

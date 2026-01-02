@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
-import { SCREENSHOT_QUEUE } from './queue.constants';
+import { TASK_QUEUE } from './queue.constants';
 
 @Module({
   imports: [
@@ -23,7 +23,7 @@ import { SCREENSHOT_QUEUE } from './queue.constants';
       }),
     }),
     BullModule.registerQueue({
-      name: SCREENSHOT_QUEUE,
+      name: TASK_QUEUE,
     }),
   ],
   exports: [BullModule],

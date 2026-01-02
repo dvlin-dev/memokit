@@ -26,7 +26,7 @@ export interface UserListItem {
   tier: SubscriptionTier;
   subscriptionStatus: SubscriptionStatus | null;
   quota: UserQuota | null;
-  screenshotCount: number;
+  memoryCount: number;
   apiKeyCount: number;
   createdAt: string;
   updatedAt: string;

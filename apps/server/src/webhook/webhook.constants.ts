@@ -3,8 +3,9 @@
  */
 
 export const VALID_WEBHOOK_EVENTS = [
-  'screenshot.completed',
-  'screenshot.failed',
+  'memory.created',
+  'memory.updated',
+  'memory.deleted',
 ] as const;
 
 export type WebhookEvent = (typeof VALID_WEBHOOK_EVENTS)[number];

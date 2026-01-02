@@ -136,7 +136,7 @@ export default function UsersPage() {
                     <TableHead>用户</TableHead>
                     <TableHead>订阅</TableHead>
                     <TableHead>配额</TableHead>
-                    <TableHead>截图数</TableHead>
+                    <TableHead>Memory 数</TableHead>
                     <TableHead>Admin</TableHead>
                     <TableHead>注册时间</TableHead>
                     <TableHead className="text-right">操作</TableHead>
@@ -183,7 +183,7 @@ export default function UsersPage() {
                           <span className="text-muted-foreground text-sm">-</span>
                         )}
                       </TableCell>
-                      <TableCell>{user.screenshotCount}</TableCell>
+                      <TableCell>{user.memoryCount}</TableCell>
                       <TableCell>
                         <Switch
                           checked={user.isAdmin}

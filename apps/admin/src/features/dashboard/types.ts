@@ -7,7 +7,7 @@ export type { ApiResponse } from '@/lib/types';
 export interface DashboardStats {
   totalUsers: number;
   activeSubscriptions: number;
-  screenshotsToday: number;
+  memoriesToday: number;
   revenueMTD: number; // Amount in cents
 }
 
@@ -19,6 +19,6 @@ export interface ChartDataPoint {
 
 /** 图表数据 */
 export interface ChartData {
-  screenshots: ChartDataPoint[];
+  memories: ChartDataPoint[];
   revenue: ChartDataPoint[];
 }
