@@ -144,6 +144,110 @@ export class WebhookService {
   }
 
   /**
+   * 获取 Webhook 投递日志
+   */
+  async getDeliveries(
+    webhookId: string,
+    userId: string,
+    options: { limit?: number; offset?: number } = {},
+  ) {
+    const { limit = 20, offset = 0 } = options;
+
+    // 先验证 Webhook 归属
+    const webhook = await this.prisma.webhook.findFirst({
+      where: { id: webhookId, userId },
+    });
+
+    if (!webhook) {
+      throw new NotFoundException('Webhook not found');
+    }
+
+    const [deliveries, total] = await Promise.all([
+      this.prisma.webhookDelivery.findMany({
+        where: { webhookId },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: offset,
+      }),
+      this.prisma.webhookDelivery.count({
+        where: { webhookId },
+      }),
+    ]);
+
+    return {
+      deliveries: deliveries.map((d) => ({
+        id: d.id,
+        webhookId: d.webhookId,
+        event: d.event,
+        statusCode: d.statusCode,
+        success: d.success,
+        error: d.error,
+        attempts: d.attempts,
+        latencyMs: d.latencyMs,
+        createdAt: d.createdAt,
+        deliveredAt: d.deliveredAt,
+      })),
+      total,
+    };
+  }
+
+  /**
+   * 获取用户所有 Webhook 的投递日志
+   */
+  async getAllDeliveries(
+    userId: string,
+    options: { webhookId?: string; limit?: number; offset?: number } = {},
+  ) {
+    const { webhookId, limit = 20, offset = 0 } = options;
+
+    const webhookWhere = webhookId
+      ? { id: webhookId, userId }
+      : { userId };
+
+    // 获取用户的 Webhook IDs
+    const userWebhooks = await this.prisma.webhook.findMany({
+      where: webhookWhere,
+      select: { id: true, name: true },
+    });
+
+    if (userWebhooks.length === 0) {
+      return { deliveries: [], total: 0 };
+    }
+
+    const webhookIds = userWebhooks.map((w) => w.id);
+    const webhookNameMap = new Map(userWebhooks.map((w) => [w.id, w.name]));
+
+    const [deliveries, total] = await Promise.all([
+      this.prisma.webhookDelivery.findMany({
+        where: { webhookId: { in: webhookIds } },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: offset,
+      }),
+      this.prisma.webhookDelivery.count({
+        where: { webhookId: { in: webhookIds } },
+      }),
+    ]);
+
+    return {
+      deliveries: deliveries.map((d) => ({
+        id: d.id,
+        webhookId: d.webhookId,
+        webhookName: webhookNameMap.get(d.webhookId) || 'Unknown',
+        event: d.event,
+        statusCode: d.statusCode,
+        success: d.success,
+        error: d.error,
+        attempts: d.attempts,
+        latencyMs: d.latencyMs,
+        createdAt: d.createdAt,
+        deliveredAt: d.deliveredAt,
+      })),
+      total,
+    };
+  }
+
+  /**
    * 格式化 Webhook 输出（隐藏 secret 后半部分）
    */
   private formatWebhook(webhook: Webhook) {

@@ -3,7 +3,14 @@
  */
 import { apiClient } from '@/lib/api-client'
 import { CONSOLE_API } from '@/lib/api-paths'
-import type { Webhook, ApiResponse, CreateWebhookRequest, UpdateWebhookRequest } from './types'
+import type {
+  Webhook,
+  ApiResponse,
+  CreateWebhookRequest,
+  UpdateWebhookRequest,
+  WebhookDelivery,
+  ListDeliveriesParams,
+} from './types'
 
 /** 获取 Webhook 列表 */
 export async function getWebhooks(): Promise<Webhook[]> {
@@ -40,4 +47,29 @@ export async function regenerateWebhookSecret(id: string): Promise<Webhook> {
     `${CONSOLE_API.WEBHOOKS}/${id}/regenerate-secret`
   )
   return response.data
+}
+
+/** 获取所有投递日志 */
+export async function getWebhookDeliveries(
+  params: ListDeliveriesParams = {}
+): Promise<{ deliveries: WebhookDelivery[]; total: number }> {
+  const searchParams = new URLSearchParams()
+
+  if (params.webhookId) searchParams.set('webhookId', params.webhookId)
+  if (params.limit) searchParams.set('limit', String(params.limit))
+  if (params.offset) searchParams.set('offset', String(params.offset))
+
+  const query = searchParams.toString()
+  const url = query
+    ? `${CONSOLE_API.WEBHOOKS}/deliveries?${query}`
+    : `${CONSOLE_API.WEBHOOKS}/deliveries`
+
+  const response = await apiClient.get<
+    ApiResponse<WebhookDelivery[]> & { meta?: { total: number } }
+  >(url)
+
+  return {
+    deliveries: response.data,
+    total: response.meta?.total ?? response.data.length,
+  }
 }

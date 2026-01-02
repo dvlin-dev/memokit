@@ -37,3 +37,31 @@ export interface UpdateWebhookRequest {
   events?: WebhookEvent[]
   isActive?: boolean
 }
+
+/** Webhook 投递日志 */
+export interface WebhookDelivery {
+  id: string
+  webhookId: string
+  webhookName?: string
+  event: string
+  statusCode: number | null
+  success: boolean
+  error: string | null
+  attempts: number
+  latencyMs: number | null
+  createdAt: string
+  deliveredAt: string | null
+}
+
+/** 投递日志查询参数 */
+export interface ListDeliveriesParams {
+  webhookId?: string
+  limit?: number
+  offset?: number
+}
+
+/** 投递日志响应 */
+export interface ListDeliveriesResponse {
+  deliveries: WebhookDelivery[]
+  total: number
+}
