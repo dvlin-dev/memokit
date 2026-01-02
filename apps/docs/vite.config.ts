@@ -17,6 +17,10 @@ export default defineConfig({
         enabled: true,
         crawlLinks: true,
       },
+      sitemap: {
+        enabled: true,
+        host: 'https://docs.memokit.dev',
+      },
     }),
     viteReact(),
     tailwindcss(),
