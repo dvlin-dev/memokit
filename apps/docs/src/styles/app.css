@@ -6,6 +6,8 @@
 @source "../routes/**/*.{ts,tsx}";
 @source "../lib/**/*.{ts,tsx}";
 @source "../../../../packages/ui/src/**/*.{ts,tsx}";
+/* Tailwind v4 ignores node_modules by default - explicitly scan fumadocs-ui */
+@source "../../../../node_modules/fumadocs-ui/dist";
 
 @custom-variant dark (&:is(.dark *));
 
