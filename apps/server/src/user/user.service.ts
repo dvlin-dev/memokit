@@ -37,10 +37,9 @@ export class UserService {
       isAdmin: user.isAdmin,
       quota: user.quota
         ? {
-            monthlyLimit: user.quota.monthlyLimit,
-            monthlyUsed: user.quota.monthlyUsed,
-            monthlyRemaining: user.quota.monthlyLimit - user.quota.monthlyUsed,
-            purchasedQuota: user.quota.purchasedQuota,
+            monthlyLimit: user.quota.monthlyApiLimit,
+            monthlyUsed: user.quota.monthlyApiUsed,
+            monthlyRemaining: user.quota.monthlyApiLimit - user.quota.monthlyApiUsed,
             periodEndAt: user.quota.periodEndAt,
           }
         : null,

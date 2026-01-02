@@ -85,4 +85,24 @@ export class RelationRepository extends BaseRepository<Relation> {
       },
     }) as unknown as RelationWithEntities[];
   }
+
+  /**
+   * 列出用户的所有关系（带实体信息）
+   */
+  async listWithEntities(
+    apiKeyId: string,
+    userId: string,
+    options: { limit?: number; offset?: number } = {},
+  ): Promise<RelationWithEntities[]> {
+    return this.prisma.relation.findMany({
+      where: { apiKeyId, userId },
+      include: {
+        source: { select: { id: true, type: true, name: true } },
+        target: { select: { id: true, type: true, name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: options.limit ?? 100,
+      skip: options.offset ?? 0,
+    }) as unknown as RelationWithEntities[];
+  }
 }

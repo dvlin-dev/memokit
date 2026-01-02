@@ -68,10 +68,14 @@ export class EntityRepository extends BaseRepository<Entity> {
       },
       create: {
         apiKeyId,
-        ...data,
+        userId: data.userId,
+        type: data.type,
+        name: data.name,
+        properties: data.properties ?? undefined,
+        confidence: data.confidence,
       },
       update: {
-        properties: data.properties,
+        properties: data.properties ?? undefined,
         confidence: data.confidence,
       },
     }) as unknown as Entity;

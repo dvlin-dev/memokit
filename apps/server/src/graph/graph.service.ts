@@ -60,7 +60,7 @@ export class GraphService {
     });
 
     // 获取所有关系
-    const relations = await this.relationRepository.prisma.relation.findMany({
+    const relations = await this.relationRepository.getPrisma().relation.findMany({
       where: { apiKeyId, userId },
       take: limit,
     });

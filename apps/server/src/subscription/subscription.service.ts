@@ -9,7 +9,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { SubscriptionTier, DEFAULT_TIER } from './subscription.constants';
-import type { Subscription } from '@prisma/client';
+import type { Subscription } from '../../generated/prisma/client';
 
 @Injectable()
 export class SubscriptionService {

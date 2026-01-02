@@ -7,9 +7,8 @@ import type { SubscriptionTier } from '../../generated/prisma/client';
 /** 套餐对应的月度配额 */
 export const TIER_MONTHLY_QUOTA: Record<SubscriptionTier, number> = {
   FREE: 100,
-  BASIC: 5000,
-  PRO: 20000,
-  TEAM: 60000,
+  HOBBY: 5000,
+  ENTERPRISE: 60000,
 };
 
 /**

@@ -88,7 +88,7 @@ export class AuthService implements OnModuleInit {
         id: fullUser.id,
         email: fullUser.email,
         name: fullUser.name,
-        tier: fullUser.subscription?.tier ?? 'FREE',
+        tier: (fullUser.subscription?.tier ?? 'FREE') as CurrentUserDto['tier'],
         isAdmin: fullUser.isAdmin,
       },
     };
@@ -137,7 +137,7 @@ export class AuthService implements OnModuleInit {
         id: session.user.id,
         email: session.user.email,
         name: session.user.name,
-        tier: session.user.subscription?.tier ?? 'FREE',
+        tier: (session.user.subscription?.tier ?? 'FREE') as CurrentUserDto['tier'],
         isAdmin: session.user.isAdmin,
       },
     };

@@ -6,7 +6,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma';
 import type {
-  PaginationQuery,
   UserQuery,
   UpdateUserDto,
   SubscriptionQuery,
@@ -35,7 +34,7 @@ export class AdminService {
     const [
       totalUsers,
       activeSubscriptions,
-      screenshotsToday,
+      usageRecordsToday,
       revenueResult,
     ] = await Promise.all([
       // Total users (excluding deleted)
@@ -48,8 +47,8 @@ export class AdminService {
         where: { status: 'ACTIVE' },
       }),
 
-      // Screenshots created today
-      this.prisma.screenshot.count({
+      // Usage records created today
+      this.prisma.usageRecord.count({
         where: {
           createdAt: { gte: startOfToday },
         },
@@ -70,7 +69,7 @@ export class AdminService {
     return {
       totalUsers,
       activeSubscriptions,
-      screenshotsToday,
+      usageRecordsToday,
       revenueMTD, // Amount in cents
     };
   }
@@ -89,8 +88,8 @@ export class AdminService {
 
     const sevenDaysAgo = dates[0];
 
-    // 查询截图数据
-    const screenshotData = await this.prisma.screenshot.groupBy({
+    // 查询用量记录数据
+    const usageData = await this.prisma.usageRecord.groupBy({
       by: ['createdAt'],
       _count: { id: true },
       where: {
@@ -108,13 +107,13 @@ export class AdminService {
       },
     });
 
-    // 按日期聚合截图数据
-    const screenshotsByDate = new Map<string, number>();
-    for (const item of screenshotData) {
+    // 按日期聚合用量数据
+    const usageByDate = new Map<string, number>();
+    for (const item of usageData) {
       const dateStr = item.createdAt.toISOString().split('T')[0];
-      screenshotsByDate.set(
+      usageByDate.set(
         dateStr,
-        (screenshotsByDate.get(dateStr) ?? 0) + item._count.id,
+        (usageByDate.get(dateStr) ?? 0) + item._count.id,
       );
     }
 
@@ -129,11 +128,11 @@ export class AdminService {
     }
 
     // 填充所有日期（确保 7 天都有数据）
-    const screenshots = dates.map((date) => {
+    const usage = dates.map((date) => {
       const dateStr = date.toISOString().split('T')[0];
       return {
         date: dateStr,
-        value: screenshotsByDate.get(dateStr) ?? 0,
+        value: usageByDate.get(dateStr) ?? 0,
       };
     });
 
@@ -145,7 +144,7 @@ export class AdminService {
       };
     });
 
-    return { screenshots, revenue };
+    return { usage, revenue };
   }
 
   // =============================================
@@ -177,7 +176,7 @@ export class AdminService {
           subscription: true,
           quota: true,
           _count: {
-            select: { screenshots: true, apiKeys: true },
+            select: { usageRecords: true, apiKeys: true },
           },
         },
       }),
@@ -195,12 +194,11 @@ export class AdminService {
         subscriptionStatus: user.subscription?.status ?? null,
         quota: user.quota
           ? {
-              monthlyLimit: user.quota.monthlyLimit,
-              monthlyUsed: user.quota.monthlyUsed,
-              purchasedQuota: user.quota.purchasedQuota,
+              monthlyLimit: user.quota.monthlyApiLimit,
+              monthlyUsed: user.quota.monthlyApiUsed,
             }
           : null,
-        screenshotCount: user._count.screenshots,
+        usageRecordCount: user._count.usageRecords,
         apiKeyCount: user._count.apiKeys,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
@@ -221,7 +219,7 @@ export class AdminService {
         subscription: true,
         quota: true,
         _count: {
-          select: { screenshots: true, apiKeys: true, webhooks: true },
+          select: { usageRecords: true, apiKeys: true, webhooks: true },
         },
       },
     });
@@ -241,13 +239,12 @@ export class AdminService {
       subscriptionStatus: user.subscription?.status ?? null,
       quota: user.quota
         ? {
-            monthlyLimit: user.quota.monthlyLimit,
-            monthlyUsed: user.quota.monthlyUsed,
-            purchasedQuota: user.quota.purchasedQuota,
+            monthlyLimit: user.quota.monthlyApiLimit,
+            monthlyUsed: user.quota.monthlyApiUsed,
             periodEndAt: user.quota.periodEndAt,
           }
         : null,
-      screenshotCount: user._count.screenshots,
+      usageRecordCount: user._count.usageRecords,
       apiKeyCount: user._count.apiKeys,
       webhookCount: user._count.webhooks,
       createdAt: user.createdAt,
@@ -349,8 +346,8 @@ export class AdminService {
         userName: sub.user.name,
         tier: sub.tier,
         status: sub.status,
-        currentPeriodStart: sub.currentPeriodStart,
-        currentPeriodEnd: sub.currentPeriodEnd,
+        periodStartAt: sub.periodStartAt,
+        periodEndAt: sub.periodEndAt,
         cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
         createdAt: sub.createdAt,
         updatedAt: sub.updatedAt,
@@ -387,8 +384,8 @@ export class AdminService {
       status: subscription.status,
       creemCustomerId: subscription.creemCustomerId,
       creemSubscriptionId: subscription.creemSubscriptionId,
-      currentPeriodStart: subscription.currentPeriodStart,
-      currentPeriodEnd: subscription.currentPeriodEnd,
+      periodStartAt: subscription.periodStartAt,
+      periodEndAt: subscription.periodEndAt,
       cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
       createdAt: subscription.createdAt,
       updatedAt: subscription.updatedAt,
@@ -481,7 +478,6 @@ export class AdminService {
           amount: order.amount,
           currency: order.currency,
           status: order.status,
-          quotaAmount: order.quotaAmount,
           createdAt: order.createdAt,
           updatedAt: order.updatedAt,
         };
@@ -519,7 +515,6 @@ export class AdminService {
       amount: order.amount,
       currency: order.currency,
       status: order.status,
-      quotaAmount: order.quotaAmount,
       metadata: order.metadata,
       createdAt: order.createdAt,
       updatedAt: order.updatedAt,

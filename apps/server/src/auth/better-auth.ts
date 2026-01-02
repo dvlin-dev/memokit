@@ -14,9 +14,8 @@ import {
 // 套餐对应的月度配额
 const TIER_MONTHLY_QUOTA = {
   FREE: 100,
-  BASIC: 5000,
-  PRO: 20000,
-  TEAM: 60000,
+  HOBBY: 5000,
+  ENTERPRISE: 60000,
 } as const;
 
 /**
@@ -124,8 +123,8 @@ export function createBetterAuth(
                   userId: user.id,
                   tier: SubscriptionTier.FREE,
                   status: SubscriptionStatus.ACTIVE,
-                  currentPeriodStart: now,
-                  currentPeriodEnd: periodEnd,
+                  periodStartAt: now,
+                  periodEndAt: periodEnd,
                 },
               });
 
@@ -133,8 +132,8 @@ export function createBetterAuth(
               await prisma.quota.create({
                 data: {
                   userId: user.id,
-                  monthlyLimit: TIER_MONTHLY_QUOTA.FREE,
-                  monthlyUsed: 0,
+                  monthlyApiLimit: TIER_MONTHLY_QUOTA.FREE,
+                  monthlyApiUsed: 0,
                   periodStartAt: now,
                   periodEndAt: periodEnd,
                 },
