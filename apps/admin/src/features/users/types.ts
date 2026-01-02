@@ -2,19 +2,19 @@
  * Users 类型定义
  */
 export type { ApiResponse, Pagination, PaginatedResponse } from '@/lib/types';
+import type {
+  SubscriptionTier,
+  SubscriptionStatus,
+} from '@/lib/subscription.types';
+
+// Re-export for consumers
+export type { SubscriptionTier, SubscriptionStatus };
 
 /** 用户配额信息 */
 export interface UserQuota {
   monthlyLimit: number;
   monthlyUsed: number;
-  purchasedQuota: number;
 }
-
-/** 订阅层级 */
-export type SubscriptionTier = 'FREE' | 'BASIC' | 'PRO' | 'TEAM';
-
-/** 订阅状态 */
-export type SubscriptionStatus = 'ACTIVE' | 'CANCELED' | 'PAST_DUE' | 'EXPIRED';
 
 /** 用户列表项 */
 export interface UserListItem {
@@ -26,6 +26,7 @@ export interface UserListItem {
   tier: SubscriptionTier;
   subscriptionStatus: SubscriptionStatus | null;
   quota: UserQuota | null;
+  /** Memory 数量 */
   memoryCount: number;
   apiKeyCount: number;
   createdAt: string;
@@ -37,6 +38,8 @@ export interface UserDetail extends UserListItem {
   image: string | null;
   webhookCount: number;
   deletedAt: string | null;
+  /** 配额周期结束时间 */
+  quotaPeriodEndAt?: string;
 }
 
 /** 用户查询参数 */

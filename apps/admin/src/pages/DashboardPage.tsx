@@ -19,19 +19,11 @@ import {
   CartesianGrid,
 } from 'recharts';
 import type { ChartConfig } from '@memokit/ui/primitives';
-
-function formatNumber(num: number): string {
-  return num.toLocaleString('en-US');
-}
-
-function formatCurrency(cents: number): string {
-  return `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-}
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
+import {
+  formatNumber,
+  formatCurrency,
+  formatShortDate,
+} from '@/lib/formatters';
 
 const memoryChartConfig: ChartConfig = {
   value: {
@@ -135,7 +127,7 @@ export default function DashboardPage() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis
                   dataKey="date"
-                  tickFormatter={formatDate}
+                  tickFormatter={formatShortDate}
                   tickLine={false}
                   axisLine={false}
                 />
@@ -143,7 +135,7 @@ export default function DashboardPage() {
                 <ChartTooltip
                   content={
                     <ChartTooltipContent
-                      labelFormatter={(value) => formatDate(value as string)}
+                      labelFormatter={(value) => formatShortDate(value as string)}
                     />
                   }
                 />
@@ -171,7 +163,7 @@ export default function DashboardPage() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis
                   dataKey="date"
-                  tickFormatter={formatDate}
+                  tickFormatter={formatShortDate}
                   tickLine={false}
                   axisLine={false}
                 />
@@ -183,7 +175,7 @@ export default function DashboardPage() {
                 <ChartTooltip
                   content={
                     <ChartTooltipContent
-                      labelFormatter={(value) => formatDate(value as string)}
+                      labelFormatter={(value) => formatShortDate(value as string)}
                       formatter={(value) => formatCurrency(value as number)}
                     />
                   }

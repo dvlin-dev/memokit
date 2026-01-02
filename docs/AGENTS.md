@@ -1,8 +1,8 @@
 # Memokit
 
-> 本文档是 AI Agent 的核心指南。遵循 [agents.md 规范](https://agents.md/)。
+> See root [`AGENTS.md`](../AGENTS.md) for the main AI Agent guide.
 
-## 项目定位
+## Documentation Structure
 
 **Memory as a Service** - 语义化记忆存储与检索 API 服务。为 AI 应用提供长期记忆能力，支持向量语义搜索、实体提取、关系图谱。
 
@@ -34,9 +34,9 @@
 | 支付 | Creem |
 | 包管理 | pnpm workspace |
 
-## 核心模块概览
+## Adding Documentation
 
-### Server 模块结构
+When adding new documentation:
 
 ```
 apps/server/src/
