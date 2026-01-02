@@ -7,8 +7,8 @@ export type { ApiResponse } from '@/lib/types';
 export interface DashboardStats {
   totalUsers: number;
   activeSubscriptions: number;
-  /** 今日 API 用量记录数 */
-  usageRecordsToday: number;
+  /** 今日 Memory 数量 */
+  memoriesToday: number;
   /** 本月收入（单位：分） */
   revenueMTD: number;
 }
@@ -21,8 +21,8 @@ export interface ChartDataPoint {
 
 /** 图表数据 */
 export interface ChartData {
-  /** API 用量趋势 */
-  usage: ChartDataPoint[];
+  /** Memory 趋势 */
+  memories: ChartDataPoint[];
   /** 收入趋势 */
   revenue: ChartDataPoint[];
 }

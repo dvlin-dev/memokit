@@ -8,7 +8,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@memokit/ui/primitives';
-import { Users, CreditCard, Zap, DollarSign } from 'lucide-react';
+import { Users, CreditCard, Database, DollarSign } from 'lucide-react';
 import {
   AreaChart,
   Area,
@@ -25,9 +25,9 @@ import {
   formatShortDate,
 } from '@/lib/formatters';
 
-const usageChartConfig: ChartConfig = {
+const memoryChartConfig: ChartConfig = {
   value: {
-    label: 'API Calls',
+    label: 'Memories',
     color: 'hsl(221, 83%, 53%)', // blue-600
   },
 };
@@ -61,10 +61,10 @@ export default function DashboardPage() {
       bgColor: 'bg-green-100',
     },
     {
-      label: 'API Calls Today',
-      value: statsData?.usageRecordsToday ?? 0,
+      label: 'Memories Today',
+      value: statsData?.memoriesToday ?? 0,
       format: formatNumber,
-      icon: Zap,
+      icon: Database,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',
     },
@@ -109,17 +109,17 @@ export default function DashboardPage() {
 
       {/* Charts */}
       <div className="grid gap-4 md:grid-cols-2">
-        {/* API Usage Chart */}
+        {/* Memories Chart */}
         <div className="rounded-none border border-border bg-card p-6">
-          <h3 className="font-semibold">API Usage</h3>
+          <h3 className="font-semibold">Memories Over Time</h3>
           <p className="text-sm text-muted-foreground">Last 7 days</p>
           {chartLoading ? (
             <Skeleton className="mt-4 h-64 w-full" />
           ) : (
-            <ChartContainer config={usageChartConfig} className="mt-4 h-64">
-              <AreaChart data={chartData?.usage ?? []}>
+            <ChartContainer config={memoryChartConfig} className="mt-4 h-64">
+              <AreaChart data={chartData?.memories ?? []}>
                 <defs>
-                  <linearGradient id="fillUsage" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="fillMemories" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="var(--color-value)" stopOpacity={0.8} />
                     <stop offset="95%" stopColor="var(--color-value)" stopOpacity={0.1} />
                   </linearGradient>
@@ -143,7 +143,7 @@ export default function DashboardPage() {
                   type="monotone"
                   dataKey="value"
                   stroke="var(--color-value)"
-                  fill="url(#fillUsage)"
+                  fill="url(#fillMemories)"
                   strokeWidth={2}
                 />
               </AreaChart>

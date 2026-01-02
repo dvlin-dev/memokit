@@ -1,5 +1,5 @@
 /**
- * Memory API 路径常量
+ * Memokit API 路径常量
  */
 
 export const AUTH_API = {
@@ -20,13 +20,15 @@ export const PAYMENT_API = {
 
 export const CONSOLE_API = {
   API_KEYS: '/api/console/api-keys',
-  SCREENSHOTS: '/api/console/screenshots',
   WEBHOOKS: '/api/console/webhooks',
+  ENTITIES: '/api/console/entities',
+  MEMORIES: '/api/console/memories',
   STATS: '/api/console/stats',
 } as const
 
 export const PUBLIC_API = {
-  SCREENSHOT: '/api/v1/screenshot',
+  MEMORIES: '/api/v1/memories',
+  ENTITIES: '/api/v1/entities',
   QUOTA: '/api/v1/quota',
 } as const
 

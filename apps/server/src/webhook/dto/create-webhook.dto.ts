@@ -18,7 +18,7 @@ export const createWebhookSchema = z.object({
     .array(z.enum(VALID_WEBHOOK_EVENTS))
     .min(1, 'At least one event is required')
     .optional()
-    .default(['screenshot.completed', 'screenshot.failed']),
+    .default(['memory.created']),
 });
 
 export type CreateWebhookDto = z.infer<typeof createWebhookSchema>;

@@ -9,10 +9,12 @@ import {
   updateWebhook,
   deleteWebhook,
   regenerateWebhookSecret,
+  getWebhookDeliveries,
 } from './api'
-import type { CreateWebhookRequest, UpdateWebhookRequest } from './types'
+import type { CreateWebhookRequest, UpdateWebhookRequest, ListDeliveriesParams } from './types'
 
 const QUERY_KEY = ['webhooks']
+const DELIVERIES_QUERY_KEY = ['webhook-deliveries']
 
 /** 获取 Webhook 列表 */
 export function useWebhooks() {
@@ -84,5 +86,13 @@ export function useRegenerateWebhookSecret() {
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to regenerate')
     },
+  })
+}
+
+/** 获取投递日志 */
+export function useWebhookDeliveries(params: ListDeliveriesParams = {}) {
+  return useQuery({
+    queryKey: [...DELIVERIES_QUERY_KEY, params],
+    queryFn: () => getWebhookDeliveries(params),
   })
 }

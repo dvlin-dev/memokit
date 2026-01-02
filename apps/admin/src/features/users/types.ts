@@ -26,8 +26,8 @@ export interface UserListItem {
   tier: SubscriptionTier;
   subscriptionStatus: SubscriptionStatus | null;
   quota: UserQuota | null;
-  /** API 用量记录数 */
-  usageRecordCount: number;
+  /** Memory 数量 */
+  memoryCount: number;
   apiKeyCount: number;
   createdAt: string;
   updatedAt: string;

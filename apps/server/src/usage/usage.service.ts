@@ -112,6 +112,93 @@ export class UsageService {
   }
 
   /**
+   * 获取每日用量统计（用于图表展示）
+   * @param userId 用户 ID
+   * @param days 获取多少天的数据，默认 30 天
+   */
+  async getDailyUsage(
+    userId: string,
+    days: number = 30,
+  ): Promise<Array<{ date: string; memories: number; apiCalls: number }>> {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+    startDate.setHours(0, 0, 0, 0);
+
+    // 获取所有记录
+    const records = await this.prisma.usageRecord.findMany({
+      where: {
+        userId,
+        createdAt: { gte: startDate },
+      },
+      select: {
+        type: true,
+        quantity: true,
+        createdAt: true,
+      },
+    });
+
+    // 初始化日期映射
+    const dateMap = new Map<string, { memories: number; apiCalls: number }>();
+    for (let i = 0; i < days; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      dateMap.set(dateStr, { memories: 0, apiCalls: 0 });
+    }
+
+    // 汇总每日用量
+    for (const record of records) {
+      const dateStr = record.createdAt.toISOString().split('T')[0];
+      const existing = dateMap.get(dateStr);
+      if (existing) {
+        if (record.type === 'MEMORY') {
+          existing.memories += record.quantity;
+        } else if (record.type === 'API_CALL') {
+          existing.apiCalls += record.quantity;
+        }
+      }
+    }
+
+    // 转换为数组并按日期排序
+    return Array.from(dateMap.entries())
+      .map(([date, usage]) => ({ date, ...usage }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }
+
+  /**
+   * 获取用户统计概览
+   */
+  async getUserStats(userId: string): Promise<{
+    totalMemories: number;
+    totalApiCalls: number;
+    thisMonthMemories: number;
+    thisMonthApiCalls: number;
+  }> {
+    const currentPeriod = this.getCurrentBillingPeriod();
+
+    // 总用量
+    const totalRecords = await this.prisma.usageRecord.groupBy({
+      by: ['type'],
+      where: { userId },
+      _sum: { quantity: true },
+    });
+
+    // 本月用量
+    const monthlyRecords = await this.prisma.usageRecord.groupBy({
+      by: ['type'],
+      where: { userId, billingPeriod: currentPeriod },
+      _sum: { quantity: true },
+    });
+
+    return {
+      totalMemories: totalRecords.find((r) => r.type === 'MEMORY')?._sum.quantity ?? 0,
+      totalApiCalls: totalRecords.find((r) => r.type === 'API_CALL')?._sum.quantity ?? 0,
+      thisMonthMemories: monthlyRecords.find((r) => r.type === 'MEMORY')?._sum.quantity ?? 0,
+      thisMonthApiCalls: monthlyRecords.find((r) => r.type === 'API_CALL')?._sum.quantity ?? 0,
+    };
+  }
+
+  /**
    * 获取当前账期标识 (格式: "2026-01")
    */
   private getCurrentBillingPeriod(): string {

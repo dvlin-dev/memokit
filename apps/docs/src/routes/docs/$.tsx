@@ -1,8 +1,8 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { DocsLayout } from 'fumadocs-ui/layouts/docs'
 import { DocsPage, DocsBody, DocsTitle, DocsDescription } from 'fumadocs-ui/page'
-import { source } from '@/lib/source'
-import { baseOptions } from '@/lib/layout.shared'
+import { source } from '../../lib/source'
+import { baseOptions } from '../../lib/layout.shared'
 
 export const Route = createFileRoute('/docs/$')({
   component: DocsPageComponent,

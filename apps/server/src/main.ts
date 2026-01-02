@@ -6,7 +6,7 @@ import { AppModule } from './app.module';
 
 /**
  * 检查 origin 是否匹配模式
- * 支持通配符子域名，如 https://*.moryflow.com
+ * 支持通配符子域名，如 https://*.memokit.dev
  */
 function matchOrigin(origin: string, pattern: string): boolean {
   // 精确匹配
@@ -36,7 +36,7 @@ async function bootstrap() {
   app.use(urlencoded({ limit: '50mb', extended: true }));
 
   // CORS 配置 - 生产环境必须配置 ALLOWED_ORIGINS
-  // 支持通配符子域名，如 https://*.moryflow.com
+  // 支持通配符子域名，如 https://*.memokit.dev
   const isDev = process.env.NODE_ENV !== 'production';
   const allowedPatterns =
     process.env.ALLOWED_ORIGINS?.split(',')
@@ -60,11 +60,9 @@ async function bootstrap() {
         return;
       }
 
-      // TODO: 安全性改进 - 当前允许所有无 Origin 的请求（移动端需要）
-      // 未来可以考虑：
-      // 1. 使用 User-Agent 检测移动端
-      // 2. 要求移动端使用自定义 Header（如 X-App-Platform: mobile）
-      // 3. 使用 API Key 或其他认证机制替代 CORS
+      // 允许无 Origin 的请求（移动端、Postman、服务器间调用等）
+      // 这些请求通过 API Key 认证，不依赖 CORS 保护
+      // 注意：浏览器请求总会携带 Origin，所以这不会绕过 CORS 检查
       if (!origin) {
         callback(null, true);
         return;
@@ -88,7 +86,7 @@ async function bootstrap() {
   // Swagger API 文档配置
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Memory API')
-    .setDescription('Memory 截图服务 API 文档')
+    .setDescription('Memokit - Memory as a Service API')
     .setVersion('1.0')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },

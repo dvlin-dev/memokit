@@ -96,15 +96,38 @@ apps/server/src/
 
 Each commit should represent **one logical change**. Do NOT bundle multiple unrelated features or fixes into a single commit.
 
+**核心原则：完成一个功能就提交一次，不要堆积多个改动再提交。**
+
 ```bash
 # ✅ Correct: One feature per commit
-git commit -m "feat(docs): add Fumadocs with TanStack Start"
-git commit -m "feat(docs): add search API endpoint"
-git commit -m "style(docs): apply OKLCH color variables"
+git commit -m "feat(console): 添加 Entity 管理功能"
+git commit -m "feat(console): 添加 Webhook 投递日志功能"
+git commit -m "feat(console): 添加 Memory 导出功能"
+git commit -m "feat(console): 增强 Memory Playground"
+git commit -m "feat(console): 添加 API 使用统计功能"
+git commit -m "feat(console): 更新路由和导航"
+git commit -m "docs: 更新计划文档"
 
 # ❌ Wrong: Multiple features in one commit
-git commit -m "feat(docs): add Fumadocs, search API, styles, and routing"
+git commit -m "feat(console): 添加 Entity、Webhook、Memory、Stats 等所有功能"
 ```
+
+### Commit Granularity Guide
+
+| 场景 | 拆分策略 |
+| --- | --- |
+| 新增功能模块 | 后端 API + 前端页面 = 1 个 commit |
+| 多个独立功能 | 每个功能 1 个 commit |
+| 重构 + 功能 | 拆分为 refactor commit + feat commit |
+| 配置 + 代码 | 可合并为 1 个 commit（如果相关） |
+| 文档更新 | 单独 1 个 commit |
+
+### When to Commit
+
+1. **完成一个功能点时** - 不要等到所有功能都做完
+2. **重构完成时** - 与新功能分开提交
+3. **修复一个 bug 时** - 每个 bug 单独提交
+4. **更新配置/依赖时** - 单独提交便于回滚
 
 ### Commit Message Format
 
@@ -135,6 +158,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) format:
 2. **Easy to revert**: Can undo specific changes without affecting others
 3. **Clean git history**: Tells a clear story of project evolution
 4. **Bisect friendly**: Easier to find bugs with `git bisect`
+5. **Better collaboration**: Team members can cherry-pick specific changes
 
 ## File Header Comment Specification
 

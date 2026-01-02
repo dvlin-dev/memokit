@@ -11,6 +11,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   HttpCode,
   HttpStatus,
   BadRequestException,
@@ -106,5 +107,60 @@ export class WebhookController {
   ) {
     const webhook = await this.webhookService.regenerateSecret(id, user.id);
     return { success: true, data: webhook };
+  }
+
+  /**
+   * 获取所有 Webhook 投递日志
+   * GET /api/console/webhooks/deliveries
+   */
+  @Get('deliveries')
+  async getAllDeliveries(
+    @CurrentUser() user: CurrentUserDto,
+    @Query('webhookId') webhookId?: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    const result = await this.webhookService.getAllDeliveries(user.id, {
+      webhookId,
+      limit: limit ? parseInt(limit, 10) : undefined,
+      offset: offset ? parseInt(offset, 10) : undefined,
+    });
+
+    return {
+      success: true,
+      data: result.deliveries,
+      meta: {
+        total: result.total,
+        limit: limit ? parseInt(limit, 10) : 20,
+        offset: offset ? parseInt(offset, 10) : 0,
+      },
+    };
+  }
+
+  /**
+   * 获取单个 Webhook 的投递日志
+   * GET /api/console/webhooks/:id/deliveries
+   */
+  @Get(':id/deliveries')
+  async getDeliveries(
+    @CurrentUser() user: CurrentUserDto,
+    @Param('id') id: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    const result = await this.webhookService.getDeliveries(id, user.id, {
+      limit: limit ? parseInt(limit, 10) : undefined,
+      offset: offset ? parseInt(offset, 10) : undefined,
+    });
+
+    return {
+      success: true,
+      data: result.deliveries,
+      meta: {
+        total: result.total,
+        limit: limit ? parseInt(limit, 10) : 20,
+        offset: offset ? parseInt(offset, 10) : 0,
+      },
+    };
   }
 }
