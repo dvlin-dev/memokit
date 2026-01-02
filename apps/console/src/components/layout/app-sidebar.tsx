@@ -6,6 +6,8 @@ import {
   Play,
   Key,
   Webhook,
+  Send,
+  Database,
   Settings,
   Brain,
 } from 'lucide-react'
@@ -32,10 +34,18 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
+    label: 'Data',
+    items: [
+      { title: 'Memories', url: '/memories', icon: Brain },
+      { title: 'Entities', url: '/entities', icon: Database },
+    ],
+  },
+  {
     label: 'API',
     items: [
       { title: 'API Keys', url: '/api-keys', icon: Key },
       { title: 'Webhooks', url: '/webhooks', icon: Webhook },
+      { title: 'Delivery Logs', url: '/webhook-deliveries', icon: Send },
     ],
   },
   {

@@ -12,6 +12,9 @@ import DashboardPage from './pages/DashboardPage'
 import MemoryPlaygroundPage from './pages/MemoryPlaygroundPage'
 import ApiKeysPage from './pages/ApiKeysPage'
 import WebhooksPage from './pages/WebhooksPage'
+import WebhookDeliveriesPage from './pages/WebhookDeliveriesPage'
+import EntitiesPage from './pages/EntitiesPage'
+import MemoriesPage from './pages/MemoriesPage'
 import SettingsPage from './pages/SettingsPage'
 
 // React Query 客户端
@@ -60,6 +63,15 @@ function App() {
 
             {/* Webhooks - 通知配置 */}
             <Route path="webhooks" element={<WebhooksPage />} />
+
+            {/* Webhook Deliveries - 投递日志 */}
+            <Route path="webhook-deliveries" element={<WebhookDeliveriesPage />} />
+
+            {/* Entities - 实体管理 */}
+            <Route path="entities" element={<EntitiesPage />} />
+
+            {/* Memories - 记忆管理 */}
+            <Route path="memories" element={<MemoriesPage />} />
 
             {/* Settings - 账户设置 */}
             <Route path="settings" element={<SettingsPage />} />
