@@ -10,11 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LangIndexRouteImport } from './routes/$lang/index'
 import { Route as DocsSplatRouteImport } from './routes/docs/$'
+import { Route as LangDocsSplatRouteImport } from './routes/$lang/docs/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LangIndexRoute = LangIndexRouteImport.update({
+  id: '/$lang/',
+  path: '/$lang/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DocsSplatRoute = DocsSplatRouteImport.update({
@@ -22,31 +29,44 @@ const DocsSplatRoute = DocsSplatRouteImport.update({
   path: '/docs/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LangDocsSplatRoute = LangDocsSplatRouteImport.update({
+  id: '/$lang/docs/$',
+  path: '/$lang/docs/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/docs/$': typeof DocsSplatRoute
+  '/$lang': typeof LangIndexRoute
+  '/$lang/docs/$': typeof LangDocsSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/docs/$': typeof DocsSplatRoute
+  '/$lang': typeof LangIndexRoute
+  '/$lang/docs/$': typeof LangDocsSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/docs/$': typeof DocsSplatRoute
+  '/$lang/': typeof LangIndexRoute
+  '/$lang/docs/$': typeof LangDocsSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/docs/$'
+  fullPaths: '/' | '/docs/$' | '/$lang' | '/$lang/docs/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/docs/$'
-  id: '__root__' | '/' | '/docs/$'
+  to: '/' | '/docs/$' | '/$lang' | '/$lang/docs/$'
+  id: '__root__' | '/' | '/docs/$' | '/$lang/' | '/$lang/docs/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DocsSplatRoute: typeof DocsSplatRoute
+  LangIndexRoute: typeof LangIndexRoute
+  LangDocsSplatRoute: typeof LangDocsSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,11 +78,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$lang/': {
+      id: '/$lang/'
+      path: '/$lang'
+      fullPath: '/$lang'
+      preLoaderRoute: typeof LangIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/docs/$': {
       id: '/docs/$'
       path: '/docs/$'
       fullPath: '/docs/$'
       preLoaderRoute: typeof DocsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$lang/docs/$': {
+      id: '/$lang/docs/$'
+      path: '/$lang/docs/$'
+      fullPath: '/$lang/docs/$'
+      preLoaderRoute: typeof LangDocsSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -71,6 +105,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DocsSplatRoute: DocsSplatRoute,
+  LangIndexRoute: LangIndexRoute,
+  LangDocsSplatRoute: LangDocsSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

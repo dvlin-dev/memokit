@@ -1,35 +1,16 @@
-import { createFileRoute, notFound } from '@tanstack/react-router'
-import { DocsLayout } from 'fumadocs-ui/layouts/docs'
-import { DocsPage, DocsBody, DocsTitle, DocsDescription } from 'fumadocs-ui/page'
-import { source } from '../../lib/source'
-import { baseOptions } from '../../lib/layout.shared'
+import { createFileRoute } from '@tanstack/react-router'
+import { DocsPageLayout, getDocsPageMeta } from '../../components/docs'
 
 export const Route = createFileRoute('/docs/$')({
-  component: DocsPageComponent,
-  loader: ({ params }) => {
+  head: ({ params }) => {
     const slugs = params._splat?.split('/').filter(Boolean) ?? []
-    const page = source.getPage(slugs)
-    if (!page) throw notFound()
-    // Only return serializable data - page object with MDX body is fetched in component
-    return { slugs }
+    return getDocsPageMeta(slugs, 'en')
   },
+  component: DocsPageComponent,
 })
 
 function DocsPageComponent() {
-  const { slugs } = Route.useLoaderData()
-  // Get page in component to avoid serialization of MDX body function
-  const page = source.getPage(slugs)!
-  const MDX = page.data.body
-
-  return (
-    <DocsLayout tree={source.pageTree} {...baseOptions()}>
-      <DocsPage>
-        <DocsTitle>{page.data.title}</DocsTitle>
-        <DocsDescription>{page.data.description}</DocsDescription>
-        <DocsBody>
-          <MDX />
-        </DocsBody>
-      </DocsPage>
-    </DocsLayout>
-  )
+  const { _splat } = Route.useParams()
+  const slugs = _splat?.split('/').filter(Boolean) ?? []
+  return <DocsPageLayout slugs={slugs} locale="en" />
 }
