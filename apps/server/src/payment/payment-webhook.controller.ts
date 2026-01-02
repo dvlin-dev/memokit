@@ -23,12 +23,10 @@ import { SubscriptionTier } from '../../generated/prisma/client';
 // Creem 产品 ID 到套餐的映射（需要根据实际配置调整）
 const PRODUCT_TO_TIER: Record<string, SubscriptionTier> = {
   // 示例，实际值需要从 Creem 控制台获取
-  'prod_basic_monthly': SubscriptionTier.BASIC,
-  'prod_basic_yearly': SubscriptionTier.BASIC,
-  'prod_pro_monthly': SubscriptionTier.PRO,
-  'prod_pro_yearly': SubscriptionTier.PRO,
-  'prod_team_monthly': SubscriptionTier.TEAM,
-  'prod_team_yearly': SubscriptionTier.TEAM,
+  'prod_hobby_monthly': SubscriptionTier.HOBBY,
+  'prod_hobby_yearly': SubscriptionTier.HOBBY,
+  'prod_enterprise_monthly': SubscriptionTier.ENTERPRISE,
+  'prod_enterprise_yearly': SubscriptionTier.ENTERPRISE,
 };
 
 // 默认订阅周期（30天）
@@ -87,7 +85,7 @@ export class PaymentWebhookController {
         case 'subscription.trialing':
         case 'subscription.paid': {
           const productId = object.product?.id || '';
-          const tier = PRODUCT_TO_TIER[productId] || SubscriptionTier.BASIC;
+          const tier = PRODUCT_TO_TIER[productId] || SubscriptionTier.HOBBY;
           const periodEnd = object.current_period_end_date
             ? new Date(object.current_period_end_date)
             : new Date(Date.now() + DEFAULT_SUBSCRIPTION_PERIOD_MS);

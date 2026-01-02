@@ -8,7 +8,7 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { QuotaService } from './quota.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { CurrentUser } from '../auth/decorators';
-import type { User } from '@prisma/client';
+import type { User } from '../../generated/prisma/client';
 
 @Controller('v1/quota')
 @UseGuards(AuthGuard)

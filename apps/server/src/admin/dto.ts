@@ -42,14 +42,14 @@ export type UserQuery = z.infer<typeof userQuerySchema>;
 // =============================================
 
 export const subscriptionQuerySchema = paginationQuerySchema.extend({
-  tier: z.enum(['FREE', 'BASIC', 'PRO', 'TEAM']).optional(),
+  tier: z.enum(['FREE', 'HOBBY', 'ENTERPRISE']).optional(),
   status: z.enum(['ACTIVE', 'CANCELED', 'PAST_DUE', 'EXPIRED']).optional(),
 });
 
 export type SubscriptionQuery = z.infer<typeof subscriptionQuerySchema>;
 
 export const updateSubscriptionSchema = z.object({
-  tier: z.enum(['FREE', 'BASIC', 'PRO', 'TEAM']).optional(),
+  tier: z.enum(['FREE', 'HOBBY', 'ENTERPRISE']).optional(),
   status: z.enum(['ACTIVE', 'CANCELED', 'PAST_DUE', 'EXPIRED']).optional(),
 });
 

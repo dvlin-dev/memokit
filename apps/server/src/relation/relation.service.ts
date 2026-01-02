@@ -56,16 +56,10 @@ export class RelationService {
     }
 
     // 默认列出所有关系（带实体信息）
-    return this.repository.prisma.relation.findMany({
-      where: { apiKeyId, userId },
-      include: {
-        source: { select: { id: true, type: true, name: true } },
-        target: { select: { id: true, type: true, name: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: options.limit ?? 100,
-      skip: options.offset ?? 0,
-    }) as unknown as RelationWithEntities[];
+    return this.repository.listWithEntities(apiKeyId, userId, {
+      limit: options.limit,
+      offset: options.offset,
+    });
   }
 
   /**

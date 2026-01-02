@@ -3,19 +3,18 @@
  * Memory 套餐和配额定价配置
  */
 
-import type { SubscriptionTier } from '../types';
+import type { SubscriptionTier } from '../../generated/prisma/client';
 
 // ==================== 套餐配置 ====================
 
 /** 套餐优先级顺序 */
-export const TIER_ORDER: SubscriptionTier[] = ['FREE', 'BASIC', 'PRO', 'TEAM'];
+export const TIER_ORDER: SubscriptionTier[] = ['FREE', 'HOBBY', 'ENTERPRISE'];
 
 /** 每个套餐的月度配额 */
 export const TIER_MONTHLY_QUOTA: Record<SubscriptionTier, number> = {
   FREE: 100,
-  BASIC: 5000,
-  PRO: 20000,
-  TEAM: 60000,
+  HOBBY: 5000,
+  ENTERPRISE: 60000,
 };
 
 /** 套餐限制配置 */
@@ -37,7 +36,7 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
     maxConcurrent: 2,
     retentionDays: 7,
   },
-  BASIC: {
+  HOBBY: {
     maxWidth: 2560,
     maxHeight: 1440,
     maxDelay: 5000,
@@ -45,15 +44,7 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
     maxConcurrent: 5,
     retentionDays: 30,
   },
-  PRO: {
-    maxWidth: 3840,
-    maxHeight: 2160,
-    maxDelay: 10000,
-    ratePerMinute: 60,
-    maxConcurrent: 10,
-    retentionDays: 90,
-  },
-  TEAM: {
+  ENTERPRISE: {
     maxWidth: 3840,
     maxHeight: 2160,
     maxDelay: 10000,
@@ -80,21 +71,14 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
     webhook: false,
     noWatermark: false,
   },
-  BASIC: {
+  HOBBY: {
     fullPage: true,
     clip: true,
     scripts: false,
     webhook: false,
     noWatermark: true,
   },
-  PRO: {
-    fullPage: true,
-    clip: true,
-    scripts: true,
-    webhook: true,
-    noWatermark: true,
-  },
-  TEAM: {
+  ENTERPRISE: {
     fullPage: true,
     clip: true,
     scripts: true,
@@ -108,9 +92,8 @@ export const TIER_FEATURES: Record<SubscriptionTier, TierFeatures> = {
 /** 套餐价格（美分） */
 export const TIER_PRICES: Record<SubscriptionTier, { monthly: number; yearly: number }> = {
   FREE: { monthly: 0, yearly: 0 },
-  BASIC: { monthly: 900, yearly: 9000 },
-  PRO: { monthly: 2900, yearly: 29000 },
-  TEAM: { monthly: 7900, yearly: 79000 },
+  HOBBY: { monthly: 1900, yearly: 19000 },
+  ENTERPRISE: { monthly: 0, yearly: 0 }, // 按量计费，联系销售
 };
 
 /** 按量购买阶梯定价（美分/次） */

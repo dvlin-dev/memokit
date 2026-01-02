@@ -10,8 +10,6 @@ import { PrismaService } from '../prisma';
 import {
   SubscriptionTier,
   SubscriptionStatus,
-  QuotaTransactionType,
-  QuotaSource,
 } from '../../generated/prisma/client';
 import { TIER_MONTHLY_QUOTA, addOneMonth } from './payment.constants';
 import type { SubscriptionActivatedParams, QuotaPurchaseParams } from './payment.types';
@@ -48,34 +46,34 @@ export class PaymentService {
           status: SubscriptionStatus.ACTIVE,
           creemCustomerId,
           creemSubscriptionId,
-          currentPeriodStart,
-          currentPeriodEnd,
+          periodStartAt: currentPeriodStart,
+          periodEndAt: currentPeriodEnd,
         },
         update: {
           tier,
           status: SubscriptionStatus.ACTIVE,
           creemCustomerId,
           creemSubscriptionId,
-          currentPeriodStart,
-          currentPeriodEnd,
+          periodStartAt: currentPeriodStart,
+          periodEndAt: currentPeriodEnd,
           cancelAtPeriodEnd: false,
         },
       });
 
       // 更新配额
-      const monthlyLimit = TIER_MONTHLY_QUOTA[tier];
+      const monthlyApiLimit = TIER_MONTHLY_QUOTA[tier];
       await tx.quota.upsert({
         where: { userId },
         create: {
           userId,
-          monthlyLimit,
-          monthlyUsed: 0,
+          monthlyApiLimit,
+          monthlyApiUsed: 0,
           periodStartAt: currentPeriodStart,
           periodEndAt: currentPeriodEnd,
         },
         update: {
-          monthlyLimit,
-          monthlyUsed: 0, // 重置使用量
+          monthlyApiLimit,
+          monthlyApiUsed: 0, // 重置使用量
           periodStartAt: currentPeriodStart,
           periodEndAt: currentPeriodEnd,
         },
@@ -123,8 +121,8 @@ export class PaymentService {
       await tx.quota.update({
         where: { userId },
         data: {
-          monthlyLimit: TIER_MONTHLY_QUOTA.FREE,
-          monthlyUsed: 0,
+          monthlyApiLimit: TIER_MONTHLY_QUOTA.FREE,
+          monthlyApiUsed: 0,
           periodStartAt: now,
           periodEndAt: periodEnd,
         },
@@ -136,35 +134,28 @@ export class PaymentService {
 
   /**
    * 处理配额购买
+   * 注意：当前 schema 不支持配额购买，此方法仅记录订单
    */
   async handleQuotaPurchase(data: QuotaPurchaseParams) {
     const { userId, amount, creemOrderId, price } = data;
 
     await this.prisma.$transaction(async (tx) => {
-      // 先获取当前配额以计算真实的 balance
-      const currentQuota = await tx.quota.findUnique({
-        where: { userId },
-      });
-
-      const balanceBefore = currentQuota?.purchasedQuota ?? 0;
-      const balanceAfter = balanceBefore + amount;
-
       const now = new Date();
       const periodEnd = addOneMonth(now);
 
-      // 增加购买配额
+      // 确保用户有配额记录
       await tx.quota.upsert({
         where: { userId },
         create: {
           userId,
-          monthlyLimit: TIER_MONTHLY_QUOTA.FREE,
-          monthlyUsed: 0,
+          monthlyApiLimit: TIER_MONTHLY_QUOTA.FREE,
+          monthlyApiUsed: 0,
           periodStartAt: now,
           periodEndAt: periodEnd,
-          purchasedQuota: amount,
         },
         update: {
-          purchasedQuota: { increment: amount },
+          // 增加月度配额限制
+          monthlyApiLimit: { increment: amount },
         },
       });
 
@@ -176,20 +167,7 @@ export class PaymentService {
           type: 'quota_purchase',
           amount: price,
           status: 'completed',
-          quotaAmount: amount,
-        },
-      });
-
-      // 记录配额变动
-      await tx.quotaTransaction.create({
-        data: {
-          userId,
-          type: QuotaTransactionType.PURCHASE,
-          amount,
-          source: QuotaSource.PURCHASED,
-          balanceBefore,
-          balanceAfter,
-          reason: `Order: ${creemOrderId}`,
+          metadata: { quotaAmount: amount },
         },
       });
     });
@@ -223,8 +201,8 @@ export class PaymentService {
           userId,
           tier: SubscriptionTier.FREE,
           status: SubscriptionStatus.ACTIVE,
-          currentPeriodStart: now,
-          currentPeriodEnd: periodEnd,
+          periodStartAt: now,
+          periodEndAt: periodEnd,
         },
       });
 
@@ -232,8 +210,8 @@ export class PaymentService {
       await tx.quota.create({
         data: {
           userId,
-          monthlyLimit: TIER_MONTHLY_QUOTA.FREE,
-          monthlyUsed: 0,
+          monthlyApiLimit: TIER_MONTHLY_QUOTA.FREE,
+          monthlyApiUsed: 0,
           periodStartAt: now,
           periodEndAt: periodEnd,
         },

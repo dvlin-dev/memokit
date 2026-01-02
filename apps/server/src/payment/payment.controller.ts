@@ -24,7 +24,7 @@ export class PaymentController {
     return {
       tier: subscription?.tier ?? 'FREE',
       status: subscription?.status ?? 'ACTIVE',
-      currentPeriodEnd: subscription?.currentPeriodEnd,
+      currentPeriodEnd: subscription?.periodEndAt,
       cancelAtPeriodEnd: subscription?.cancelAtPeriodEnd ?? false,
     };
   }
@@ -41,18 +41,16 @@ export class PaymentController {
     if (!quota) {
       return {
         monthly: { limit: 100, used: 0, remaining: 100 },
-        purchased: 0,
         periodEndsAt: null,
       };
     }
 
     return {
       monthly: {
-        limit: quota.monthlyLimit,
-        used: quota.monthlyUsed,
-        remaining: quota.monthlyLimit - quota.monthlyUsed,
+        limit: quota.monthlyApiLimit,
+        used: quota.monthlyApiUsed,
+        remaining: quota.monthlyApiLimit - quota.monthlyApiUsed,
       },
-      purchased: quota.purchasedQuota,
       periodEndsAt: quota.periodEndAt,
     };
   }

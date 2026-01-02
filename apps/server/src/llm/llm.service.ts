@@ -27,14 +27,16 @@ export interface ChatCompletionResult {
 export interface ExtractedEntity {
   name: string;
   type: string;
-  confidence: number;
+  confidence?: number;
+  properties?: Record<string, any>;
 }
 
 export interface ExtractedRelation {
   source: string;
   target: string;
   type: string;
-  confidence: number;
+  confidence?: number;
+  properties?: Record<string, any>;
 }
 
 @Injectable()
@@ -107,6 +109,49 @@ Only return the JSON array, no other text.`;
     } catch (error) {
       this.logger.warn(`Failed to parse relation extraction result: ${result.content}`);
       return [];
+    }
+  }
+
+  /**
+   * 从文本中同时抽取实体和关系
+   */
+  async extractEntitiesAndRelations(
+    text: string,
+    options: { entityTypes?: string[]; relationTypes?: string[] } = {},
+  ): Promise<{ entities: ExtractedEntity[]; relations: ExtractedRelation[] }> {
+    const entityTypesHint = options.entityTypes?.length
+      ? `Focus on these entity types: ${options.entityTypes.join(', ')}`
+      : '';
+    const relationTypesHint = options.relationTypes?.length
+      ? `Focus on these relation types: ${options.relationTypes.join(', ')}`
+      : '';
+
+    const systemPrompt = `You are an entity and relation extraction system. Extract named entities and their relationships from the given text.
+${entityTypesHint}
+${relationTypesHint}
+
+Return a JSON object with the following structure:
+{
+  "entities": [{"name": "entity name", "type": "person|place|organization|product|event|concept|other", "confidence": 0.0-1.0, "properties": {}}],
+  "relations": [{"source": "entity1 name", "target": "entity2 name", "type": "relationship type", "confidence": 0.0-1.0, "properties": {}}]
+}
+
+Only return the JSON object, no other text.`;
+
+    const result = await this.chat([
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: text },
+    ]);
+
+    try {
+      const parsed = JSON.parse(result.content);
+      return {
+        entities: parsed.entities || [],
+        relations: parsed.relations || [],
+      };
+    } catch (error) {
+      this.logger.warn(`Failed to parse extraction result: ${result.content}`);
+      return { entities: [], relations: [] };
     }
   }
 

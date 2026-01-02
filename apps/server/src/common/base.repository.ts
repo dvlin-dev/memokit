@@ -23,6 +23,13 @@ export abstract class BaseRepository<T> {
   ) {}
 
   /**
+   * 获取 Prisma 服务实例（只读访问）
+   */
+  getPrisma(): PrismaService {
+    return this.prisma;
+  }
+
+  /**
    * 自动添加 apiKeyId 过滤条件
    */
   protected withApiKeyFilter(apiKeyId: string, where: Record<string, any> = {}): Record<string, any> {
