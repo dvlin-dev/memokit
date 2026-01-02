@@ -2,7 +2,7 @@
  * Memory Playground Page
  * Interactive Memory API testing interface
  */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { PageHeader } from '@memokit/ui/composed'
 import {
   Card,
@@ -20,9 +20,14 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@memokit/ui/primitives'
 import { AlertTriangle, Send, Search, Plus, Key } from 'lucide-react'
-import { useApiKeys } from '@/features/api-keys'
+import { useApiKeys, getStoredApiKeys, syncStoredApiKeys } from '@/features/api-keys'
 
 interface Memory {
   id: string
@@ -42,7 +47,6 @@ interface SearchResult extends Memory {
 export default function MemoryPlaygroundPage() {
   const { data: apiKeys, isLoading: keysLoading } = useApiKeys()
   const [selectedKeyId, setSelectedKeyId] = useState<string>('')
-  const [manualApiKey, setManualApiKey] = useState<string>('')
 
   // Add Memory state
   const [addContent, setAddContent] = useState('')
@@ -61,20 +65,37 @@ export default function MemoryPlaygroundPage() {
   const [searchError, setSearchError] = useState<string | null>(null)
   const [searchLoading, setSearchLoading] = useState(false)
 
-  // Auto-select first API key
-  useEffect(() => {
-    if (apiKeys?.length && !selectedKeyId) {
-      const firstActiveKey = apiKeys.find((k) => k.isActive) || apiKeys[0]
-      setSelectedKeyId(firstActiveKey.id)
+  // 获取本地存储的 API Keys，并与服务器列表同步
+  const storedKeys = useMemo(() => {
+    if (apiKeys?.length) {
+      // 清理已删除的 keys
+      syncStoredApiKeys(apiKeys.map((k) => k.id))
     }
-  }, [apiKeys, selectedKeyId])
+    return getStoredApiKeys()
+  }, [apiKeys])
+
+  // 可用的 API Keys（只显示本地存储了完整 key 的）
+  const availableKeys = useMemo(() => {
+    if (!apiKeys) return []
+    return apiKeys.filter((apiKey) =>
+      apiKey.isActive && storedKeys.some((stored) => stored.id === apiKey.id)
+    )
+  }, [apiKeys, storedKeys])
+
+  // Auto-select first available API key
+  useEffect(() => {
+    if (availableKeys.length && !selectedKeyId) {
+      setSelectedKeyId(availableKeys[0].id)
+    }
+  }, [availableKeys, selectedKeyId])
 
   const getApiKey = () => {
-    return manualApiKey
+    const stored = storedKeys.find((k) => k.id === selectedKeyId)
+    return stored?.key || ''
   }
 
   const handleAddMemory = async () => {
-    if (!addContent.trim() || !manualApiKey.trim()) return
+    if (!addContent.trim() || !getApiKey()) return
 
     setAddLoading(true)
     setAddError(null)
@@ -111,7 +132,7 @@ export default function MemoryPlaygroundPage() {
   }
 
   const handleSearch = async () => {
-    if (!searchQuery.trim() || !manualApiKey.trim()) return
+    if (!searchQuery.trim() || !getApiKey()) return
 
     setSearchLoading(true)
     setSearchError(null)
@@ -175,14 +196,38 @@ export default function MemoryPlaygroundPage() {
         <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            You haven't created any API Keys yet. Please create one on the{' '}
+            你还没有创建任何 API Key。请先在{' '}
             <a
               href="/api-keys"
               className="underline font-medium text-primary"
             >
-              API Keys page
+              API Keys 页面
             </a>{' '}
-            first.
+            创建一个。
+          </AlertDescription>
+        </Alert>
+      </div>
+    )
+  }
+
+  if (!availableKeys.length) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Memory Playground"
+          description="Interactive Memory API testing"
+        />
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            没有可用的 API Key。API Key 只在创建时显示一次，请在{' '}
+            <a
+              href="/api-keys"
+              className="underline font-medium text-primary"
+            >
+              API Keys 页面
+            </a>{' '}
+            创建一个新的 Key，创建后即可在此选择使用。
           </AlertDescription>
         </Alert>
       </div>
@@ -196,26 +241,33 @@ export default function MemoryPlaygroundPage() {
         description="Test the Memory API interactively - add, search, and manage semantic memories"
       />
 
-      {/* API Key Input */}
+      {/* API Key Selector */}
       <Card>
         <CardContent className="pt-6">
           <div className="space-y-4">
             <div className="flex items-center gap-4">
-              <Label htmlFor="api-key-input" className="whitespace-nowrap">
+              <Label className="whitespace-nowrap">
                 <Key className="h-4 w-4 inline mr-2" />
                 API Key
               </Label>
-              <Input
-                id="api-key-input"
-                type="password"
-                placeholder="输入你的 API Key (mk_...)"
-                value={manualApiKey}
-                onChange={(e) => setManualApiKey(e.target.value)}
-                className="flex-1 font-mono"
-              />
+              <Select value={selectedKeyId} onValueChange={setSelectedKeyId}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="选择 API Key" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableKeys.map((key) => (
+                    <SelectItem key={key.id} value={key.id}>
+                      <span className="font-medium">{key.name}</span>
+                      <span className="text-muted-foreground ml-2 font-mono text-xs">
+                        {key.keyPrefix}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <p className="text-xs text-muted-foreground">
-              API Key 在创建时只显示一次。如需新 Key，请在{' '}
+              如需新 Key，请在{' '}
               <a href="/api-keys" className="underline text-primary">API Keys 页面</a> 创建。
             </p>
           </div>
@@ -283,7 +335,7 @@ export default function MemoryPlaygroundPage() {
                 </div>
                 <Button
                   onClick={handleAddMemory}
-                  disabled={addLoading || !addContent.trim() || !manualApiKey.trim()}
+                  disabled={addLoading || !addContent.trim() || !selectedKeyId}
                   className="w-full"
                 >
                   {addLoading ? 'Adding...' : 'Add Memory'}
@@ -378,7 +430,7 @@ export default function MemoryPlaygroundPage() {
                 </div>
                 <Button
                   onClick={handleSearch}
-                  disabled={searchLoading || !searchQuery.trim() || !manualApiKey.trim()}
+                  disabled={searchLoading || !searchQuery.trim() || !selectedKeyId}
                   className="w-full"
                 >
                   {searchLoading ? 'Searching...' : 'Search'}

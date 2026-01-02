@@ -16,6 +16,7 @@ import { Label } from '@memokit/ui/primitives'
 import { Copy, Check, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { useCreateApiKey } from '../hooks'
+import { storeApiKey } from '../storage'
 
 interface CreateApiKeyDialogProps {
   open: boolean
@@ -40,6 +41,8 @@ export function CreateApiKeyDialog({
       {
         onSuccess: (result) => {
           setCreatedKey(result.key)
+          // 存储完整 API Key 到 localStorage，以便在 Playground 中使用
+          storeApiKey(result.id, result.name, result.key)
         },
       }
     )
