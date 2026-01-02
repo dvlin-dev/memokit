@@ -11,11 +11,13 @@ import { QuotaGuard } from './quota.guard';
 import { PrismaModule } from '../prisma';
 import { SubscriptionModule } from '../subscription';
 import { UsageModule } from '../usage';
+import { AuthModule } from '../auth';
 
 @Module({
   imports: [
     PrismaModule,
     SubscriptionModule,
+    AuthModule,
     forwardRef(() => UsageModule),
   ],
   controllers: [QuotaController],

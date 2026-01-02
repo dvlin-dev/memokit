@@ -4,10 +4,12 @@ import { EntityService } from './entity.service';
 import { EntityRepository } from './entity.repository';
 import { PrismaModule } from '../prisma';
 import { QuotaModule } from '../quota';
+import { UsageModule } from '../usage';
+import { SubscriptionModule } from '../subscription';
 import { ApiKeyModule } from '../api-key';
 
 @Module({
-  imports: [PrismaModule, QuotaModule, ApiKeyModule],
+  imports: [PrismaModule, QuotaModule, UsageModule, SubscriptionModule, ApiKeyModule],
   controllers: [EntityController],
   providers: [EntityService, EntityRepository],
   exports: [EntityService, EntityRepository],
