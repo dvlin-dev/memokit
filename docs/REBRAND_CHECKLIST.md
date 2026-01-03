@@ -18,7 +18,7 @@
 | 品牌名 | `memai` / `Memai` | `memai` / `Memai` |
 | API Key 前缀 | `mm_` | `mm_` (可选) |
 | Webhook Header | `x-memai-signature` | `x-memai-signature` |
-| 环境变量前缀 | `MEMOKIT_` | `MEMAI_` |
+| 环境变量前缀 | `MEMAI_` | `MEMAI_` |
 | localStorage Key | `memai_api_keys` | `memai_api_keys` |
 | GitHub 仓库 | `dvlin-dev/memai` | `dvlin-dev/memai` |
 | Twitter | `twitter.com/memai` | `twitter.com/memai` |
@@ -175,7 +175,7 @@
 | `getting-started/index.zh.mdx` | 同上中文版 |
 | `getting-started/quickstart.mdx` | `console.memai.dev`、所有 API URL、`mm_` 前缀说明 |
 | `getting-started/quickstart.zh.mdx` | 同上中文版 |
-| `getting-started/authentication.mdx` | `Memai Console`、`Memai API`、`mm_` 前缀、`MEMOKIT_API_KEY` 环境变量 |
+| `getting-started/authentication.mdx` | `Memai Console`、`Memai API`、`mm_` 前缀、`MEMAI_API_KEY` 环境变量 |
 | `getting-started/authentication.zh.mdx` | 同上中文版 |
 | `api-reference/index.mdx` | `api.memai.dev` 基础 URL、`mm_your_api_key` |
 | `api-reference/index.zh.mdx` | 同上中文版 |
@@ -343,7 +343,7 @@ sed -i '' 's/API_KEY_PREFIX = .mm_./API_KEY_PREFIX = "mm_"/g' **/*
 
 ```bash
 # 更新环境变量名
-sed -i '' 's/MEMOKIT_/MEMAI_/g' **/*
+sed -i '' 's/MEMAI_/MEMAI_/g' **/*
 ```
 
 ### 第六阶段：验证
