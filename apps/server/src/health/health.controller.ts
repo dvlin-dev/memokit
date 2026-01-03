@@ -3,7 +3,7 @@
  * 健康检查端点 - 验证数据库和 Redis 连接
  */
 
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, VERSION_NEUTRAL } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Public } from '../auth/decorators';
 import { SkipResponseWrap } from '../common/decorators';
@@ -21,7 +21,7 @@ interface HealthCheckResponse {
 }
 
 @ApiTags('Health')
-@Controller('health')
+@Controller({ path: 'health', version: VERSION_NEUTRAL })
 @SkipResponseWrap()
 export class HealthController {
   private readonly startTime = Date.now();
