@@ -23,7 +23,7 @@ interface BackendResponse {
   }
 }
 
-class ApiError extends Error {
+export class ApiError extends Error {
   constructor(
     message: string,
     public readonly code?: string
@@ -33,17 +33,18 @@ class ApiError extends Error {
   }
 }
 
-/** API 基础地址（生产环境使用环境变量，开发环境使用代理） */
-const API_BASE = import.meta.env.VITE_API_URL || ''
-
 /**
  * 搜索记忆
+ * @param query 搜索查询
+ * @param captcha Turnstile 验证码 token
+ * @param apiUrl API 基础地址
  */
 export async function searchMemories(
   query: string,
-  captcha: string
+  captcha: string,
+  apiUrl: string
 ): Promise<SearchResponse> {
-  const response = await fetch(`${API_BASE}/api/demo/search`, {
+  const response = await fetch(`${apiUrl}/api/demo/search`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ query, captcha }),

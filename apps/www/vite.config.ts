@@ -1,22 +1,27 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+import { nitro } from 'nitro/vite'
+import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import path from 'path'
+import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
+  plugins: [
+    tsconfigPaths(),
+    tailwindcss(),
+    tanstackStart({
+      prerender: {
+        enabled: false, // 运行时 SSR
+      },
+      sitemap: {
+        enabled: true,
+        host: 'https://memokit.dev',
+      },
+    }),
+    nitro(),
+    viteReact(),
+  ],
   server: {
     port: 3001,
-    proxy: {
-      '/api': {
-        target: process.env.API_TARGET || 'http://localhost:3000',
-        changeOrigin: true,
-      },
-    },
   },
 })
