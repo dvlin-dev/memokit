@@ -54,14 +54,13 @@ export class ExtractController {
     @ApiKeyId() apiKeyId: string,
     @Body() dto: ExtractDto,
   ) {
-    const result = await this.extractService.extractFromText(apiKeyId, dto.text, {
+    return this.extractService.extractFromText(apiKeyId, dto.text, {
       userId: dto.userId,
       entityTypes: dto.entityTypes,
       relationTypes: dto.relationTypes,
       minConfidence: dto.minConfidence,
       saveToGraph: dto.saveToGraph ?? true,
     });
-    return { success: true, data: result };
   }
 
   /**
@@ -73,14 +72,13 @@ export class ExtractController {
     @ApiKeyId() apiKeyId: string,
     @Body() dto: ExtractBatchDto,
   ) {
-    const result = await this.extractService.extractFromTexts(apiKeyId, dto.texts, {
+    return this.extractService.extractFromTexts(apiKeyId, dto.texts, {
       userId: dto.userId,
       entityTypes: dto.entityTypes,
       relationTypes: dto.relationTypes,
       minConfidence: dto.minConfidence,
       saveToGraph: dto.saveToGraph ?? true,
     });
-    return { success: true, data: result };
   }
 
   /**
@@ -91,10 +89,9 @@ export class ExtractController {
   async preview(
     @Body() dto: PreviewDto,
   ) {
-    const result = await this.extractService.preview(dto.text, {
+    return this.extractService.preview(dto.text, {
       entityTypes: dto.entityTypes,
       relationTypes: dto.relationTypes,
     });
-    return { success: true, data: result };
   }
 }

@@ -40,8 +40,10 @@ import { useUsers, useUpdateUser, useDeleteUser } from '@/features/users';
 import type { UserListItem, UserQuery } from '@/features/users';
 import { getTierBadgeVariant } from '@/lib/badge-variants';
 
+const DEFAULT_LIMIT = 20;
+
 export default function UsersPage() {
-  const [query, setQuery] = useState<UserQuery>({ page: 1, limit: 20 });
+  const [query, setQuery] = useState<UserQuery>({ offset: 0, limit: DEFAULT_LIMIT });
   const [searchInput, setSearchInput] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserListItem | null>(null);
@@ -50,8 +52,12 @@ export default function UsersPage() {
   const { mutate: updateUser } = useUpdateUser();
   const { mutate: deleteUser, isPending: isDeleting } = useDeleteUser();
 
+  // 计算当前页码和总页数
+  const currentPage = Math.floor((query.offset ?? 0) / DEFAULT_LIMIT) + 1;
+  const totalPages = data ? Math.ceil(data.pagination.total / DEFAULT_LIMIT) : 1;
+
   const handleSearch = () => {
-    setQuery((prev) => ({ ...prev, page: 1, search: searchInput || undefined }));
+    setQuery((prev) => ({ ...prev, offset: 0, search: searchInput || undefined }));
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -61,7 +67,7 @@ export default function UsersPage() {
   };
 
   const handlePageChange = (page: number) => {
-    setQuery((prev) => ({ ...prev, page }));
+    setQuery((prev) => ({ ...prev, offset: (page - 1) * DEFAULT_LIMIT }));
   };
 
   const handleToggleAdmin = (user: UserListItem) => {
@@ -204,11 +210,11 @@ export default function UsersPage() {
                 </TableBody>
               </Table>
 
-              {data.pagination.totalPages > 1 && (
+              {totalPages > 1 && (
                 <div className="mt-4 flex justify-center">
                   <SimplePagination
-                    page={data.pagination.page}
-                    totalPages={data.pagination.totalPages}
+                    page={currentPage}
+                    totalPages={totalPages}
                     onPageChange={handlePageChange}
                   />
                 </div>

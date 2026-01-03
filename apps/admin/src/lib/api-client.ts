@@ -1,8 +1,9 @@
 /**
  * API 客户端
- * 使用 Bearer Token 认证，统一错误处理
+ * 使用 Bearer Token 认证，统一错误处理，自动解包响应
  */
 import { useAuthStore, getAuthToken } from '@/stores/auth';
+import type { ApiErrorResponse as ApiErrorResponseType } from '@memokit/shared-types';
 
 // 开发环境使用空字符串走 Vite 代理，生产环境使用完整 URL
 export const API_BASE_URL = import.meta.env.VITE_API_URL ?? '';
@@ -38,10 +39,14 @@ export class ApiError extends Error {
   }
 }
 
-interface ApiErrorResponse {
-  error?: string;
-  message?: string;
-  code?: string;
+/** 分页结果 */
+export interface PaginatedResult<T> {
+  items: T[];
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+  };
 }
 
 class ApiClient {
@@ -51,33 +56,43 @@ class ApiClient {
     this.baseURL = baseURL;
   }
 
+  /**
+   * 处理响应 - 自动解包 data 字段
+   */
   private async handleResponse<T>(response: Response): Promise<T> {
-    if (!response.ok) {
-      // 401 或 403 自动登出
-      if (response.status === 401 || response.status === 403) {
-        useAuthStore.getState().logout();
-        throw new ApiError(
-          response.status,
-          response.status === 401 ? 'UNAUTHORIZED' : 'FORBIDDEN',
-          response.status === 401 ? '登录已过期，请重新登录' : '没有权限访问',
-        );
-      }
-
-      const errorData: ApiErrorResponse = await response.json().catch(() => ({}));
-
-      throw new ApiError(
-        response.status,
-        errorData.code || errorData.error || 'UNKNOWN_ERROR',
-        errorData.message || `请求失败 (${response.status})`,
-      );
+    // 处理 204 No Content
+    if (response.status === 204) {
+      return undefined as T;
     }
 
+    // 处理非 JSON 响应
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
+      if (!response.ok) {
+        throw new ApiError(response.status, 'NETWORK_ERROR', 'Request failed');
+      }
       return {} as T;
     }
 
-    return response.json();
+    const json = await response.json();
+
+    // 处理错误响应
+    if (!response.ok || json.success === false) {
+      // 401/403 自动登出
+      if (response.status === 401 || response.status === 403) {
+        useAuthStore.getState().logout();
+      }
+
+      const errorResponse = json as ApiErrorResponseType;
+      throw new ApiError(
+        response.status,
+        errorResponse.error?.code || 'UNKNOWN_ERROR',
+        errorResponse.error?.message || `请求失败 (${response.status})`
+      );
+    }
+
+    // 成功响应 - 返回 data 字段
+    return json.data;
   }
 
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
@@ -101,6 +116,13 @@ class ApiClient {
 
   async get<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint);
+  }
+
+  /**
+   * GET 分页请求 - 返回 items + pagination
+   */
+  async getPaginated<T>(endpoint: string): Promise<PaginatedResult<T>> {
+    return this.request<PaginatedResult<T>>(endpoint);
   }
 
   async post<T>(endpoint: string, data?: unknown): Promise<T> {

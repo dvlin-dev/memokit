@@ -1,11 +1,9 @@
 /**
  * Subscriptions API
  */
-import { apiClient } from '@/lib/api-client';
+import { apiClient, type PaginatedResult } from '@/lib/api-client';
 import { ADMIN_API } from '@/lib/api-paths';
 import type {
-  ApiResponse,
-  PaginatedResponse,
   SubscriptionListItem,
   SubscriptionDetail,
   SubscriptionQuery,
@@ -15,8 +13,8 @@ import type {
 /** 构建查询字符串 */
 function buildQueryString(query: SubscriptionQuery): string {
   const params = new URLSearchParams();
-  if (query.page) params.set('page', String(query.page));
-  if (query.limit) params.set('limit', String(query.limit));
+  if (query.offset !== undefined) params.set('offset', String(query.offset));
+  if (query.limit !== undefined) params.set('limit', String(query.limit));
   if (query.search) params.set('search', query.search);
   if (query.tier) params.set('tier', query.tier);
   if (query.status) params.set('status', query.status);
@@ -26,21 +24,15 @@ function buildQueryString(query: SubscriptionQuery): string {
 /** 获取订阅列表 */
 export async function getSubscriptions(
   query: SubscriptionQuery = {},
-): Promise<PaginatedResponse<SubscriptionListItem>> {
+): Promise<PaginatedResult<SubscriptionListItem>> {
   const qs = buildQueryString(query);
   const url = qs ? `${ADMIN_API.SUBSCRIPTIONS}?${qs}` : ADMIN_API.SUBSCRIPTIONS;
-  const response = await apiClient.get<
-    ApiResponse<PaginatedResponse<SubscriptionListItem>>
-  >(url);
-  return response.data;
+  return apiClient.getPaginated<SubscriptionListItem>(url);
 }
 
 /** 获取单个订阅 */
 export async function getSubscription(id: string): Promise<SubscriptionDetail> {
-  const response = await apiClient.get<ApiResponse<SubscriptionDetail>>(
-    `${ADMIN_API.SUBSCRIPTIONS}/${id}`,
-  );
-  return response.data;
+  return apiClient.get<SubscriptionDetail>(`${ADMIN_API.SUBSCRIPTIONS}/${id}`);
 }
 
 /** 更新订阅 */
@@ -48,9 +40,8 @@ export async function updateSubscription(
   id: string,
   data: UpdateSubscriptionRequest,
 ): Promise<SubscriptionListItem> {
-  const response = await apiClient.patch<ApiResponse<SubscriptionListItem>>(
+  return apiClient.patch<SubscriptionListItem>(
     `${ADMIN_API.SUBSCRIPTIONS}/${id}`,
     data,
   );
-  return response.data;
 }

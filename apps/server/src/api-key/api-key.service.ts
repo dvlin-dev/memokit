@@ -14,7 +14,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import type { CreateApiKeyDto } from './dto/create-api-key.dto';
 import type { UpdateApiKeyDto } from './dto/update-api-key.dto';
-import type { SubscriptionTier } from '../types/tier.types';
+import type { SubscriptionTier } from '../subscription/subscription.constants';
 import type {
   ApiKeyValidationResult,
   ApiKeyCreateResult,

@@ -37,8 +37,7 @@ export class AdminUsersController {
     if (!parsed.success) {
       throw new BadRequestException(parsed.error.issues[0]?.message);
     }
-    const result = await this.adminService.getUsers(parsed.data);
-    return { success: true, data: result };
+    return this.adminService.getUsers(parsed.data);
   }
 
   /**
@@ -47,8 +46,7 @@ export class AdminUsersController {
    */
   @Get(':id')
   async getUser(@Param('id') id: string) {
-    const user = await this.adminService.getUser(id);
-    return { success: true, data: user };
+    return this.adminService.getUser(id);
   }
 
   /**
@@ -61,8 +59,7 @@ export class AdminUsersController {
     if (!parsed.success) {
       throw new BadRequestException(parsed.error.issues[0]?.message);
     }
-    const user = await this.adminService.updateUser(id, parsed.data);
-    return { success: true, data: user };
+    return this.adminService.updateUser(id, parsed.data);
   }
 
   /**

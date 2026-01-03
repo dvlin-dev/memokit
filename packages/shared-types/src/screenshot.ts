@@ -64,31 +64,35 @@ export interface ScreenshotResponse {
 
 // ============ 错误码 ============
 
-export enum ScreenshotErrorCode {
+export const ScreenshotErrorCode = {
   // 客户端错误
-  INVALID_URL = 'INVALID_URL',
-  INVALID_PARAMS = 'INVALID_PARAMS',
-  UNAUTHORIZED = 'UNAUTHORIZED',
-  QUOTA_EXCEEDED = 'QUOTA_EXCEEDED',
-  RATE_LIMITED = 'RATE_LIMITED',
-  CONCURRENT_LIMIT_EXCEEDED = 'CONCURRENT_LIMIT_EXCEEDED',
-  FEATURE_NOT_ALLOWED = 'FEATURE_NOT_ALLOWED',
-  URL_NOT_ALLOWED = 'URL_NOT_ALLOWED',
+  INVALID_URL: 'INVALID_URL',
+  INVALID_PARAMS: 'INVALID_PARAMS',
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  QUOTA_EXCEEDED: 'QUOTA_EXCEEDED',
+  RATE_LIMITED: 'RATE_LIMITED',
+  CONCURRENT_LIMIT_EXCEEDED: 'CONCURRENT_LIMIT_EXCEEDED',
+  FEATURE_NOT_ALLOWED: 'FEATURE_NOT_ALLOWED',
+  URL_NOT_ALLOWED: 'URL_NOT_ALLOWED',
 
   // 截图错误
-  PAGE_LOAD_FAILED = 'PAGE_LOAD_FAILED',
-  PAGE_TIMEOUT = 'PAGE_TIMEOUT',
-  SELECTOR_NOT_FOUND = 'SELECTOR_NOT_FOUND',
+  PAGE_LOAD_FAILED: 'PAGE_LOAD_FAILED',
+  PAGE_TIMEOUT: 'PAGE_TIMEOUT',
+  SELECTOR_NOT_FOUND: 'SELECTOR_NOT_FOUND',
 
   // 服务端错误
-  INTERNAL_ERROR = 'INTERNAL_ERROR',
-}
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+} as const;
+
+export type ScreenshotErrorCode = (typeof ScreenshotErrorCode)[keyof typeof ScreenshotErrorCode];
 
 // ============ 截图状态 ============
 
-export enum ScreenshotStatus {
-  PENDING = 'PENDING',
-  PROCESSING = 'PROCESSING',
-  COMPLETED = 'COMPLETED',
-  FAILED = 'FAILED',
-}
+export const ScreenshotStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+} as const;
+
+export type ScreenshotStatus = (typeof ScreenshotStatus)[keyof typeof ScreenshotStatus];

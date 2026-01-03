@@ -23,11 +23,7 @@ export class ConsoleStatsController {
    */
   @Get('overview')
   async getOverview(@CurrentUser() user: CurrentUserDto) {
-    const stats = await this.usageService.getUserStats(user.id);
-    return {
-      success: true,
-      data: stats,
-    };
+    return this.usageService.getUserStats(user.id);
   }
 
   /**
@@ -40,11 +36,7 @@ export class ConsoleStatsController {
     @Query('days') days?: string,
   ) {
     const numDays = parsePositiveInt(days, 30, MAX_DAYS);
-    const dailyUsage = await this.usageService.getDailyUsage(user.id, numDays);
-    return {
-      success: true,
-      data: dailyUsage,
-    };
+    return this.usageService.getDailyUsage(user.id, numDays);
   }
 
   /**
@@ -57,10 +49,6 @@ export class ConsoleStatsController {
     @Query('limit') limit?: string,
   ) {
     const numLimit = parsePositiveInt(limit, 12, MAX_MONTHS);
-    const history = await this.usageService.getUsageHistory(user.id, numLimit);
-    return {
-      success: true,
-      data: history,
-    };
+    return this.usageService.getUsageHistory(user.id, numLimit);
   }
 }

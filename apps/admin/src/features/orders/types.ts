@@ -1,7 +1,7 @@
 /**
  * Orders 类型定义
  */
-export type { ApiResponse, Pagination, PaginatedResponse } from '@/lib/types';
+export type { PaginatedResponse } from '@/lib/types';
 
 /** 订单类型 - 与 Prisma Schema 保持一致 */
 export type OrderType = 'subscription' | 'usage_billing';
@@ -32,7 +32,7 @@ export interface OrderDetail extends OrderListItem {
 
 /** 订单查询参数 */
 export interface OrderQuery {
-  page?: number;
+  offset?: number;
   limit?: number;
   search?: string;
   status?: OrderStatus;

@@ -16,6 +16,7 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { Public } from '../auth';
+import { SkipResponseWrap } from '../common/decorators';
 import { PaymentService } from './payment.service';
 import { CreemWebhookSchema, type CreemWebhookPayload } from './dto';
 import { SubscriptionTier } from '../../generated/prisma/client';
@@ -33,6 +34,7 @@ const PRODUCT_TO_TIER: Record<string, SubscriptionTier> = {
 const DEFAULT_SUBSCRIPTION_PERIOD_MS = 30 * 24 * 60 * 60 * 1000;
 
 @Controller('webhooks/creem')
+@SkipResponseWrap()
 export class PaymentWebhookController {
   private readonly logger = new Logger(PaymentWebhookController.name);
 

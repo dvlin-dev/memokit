@@ -1,8 +1,9 @@
 /**
  * API 客户端
- * 使用 Bearer Token 认证，统一错误处理
+ * 使用 Bearer Token 认证，统一错误处理，自动解包响应
  */
 import { useAuthStore, getAuthToken } from '../stores/auth'
+import type { PaginationMeta, ApiErrorResponse as ApiErrorResponseType } from '@memokit/shared-types'
 
 // 开发环境使用空字符串走 Vite 代理，生产环境使用完整 URL
 export const API_BASE_URL = import.meta.env.VITE_API_URL ?? ''
@@ -43,13 +44,10 @@ export class ApiError extends Error {
   }
 }
 
-/**
- * API 响应错误结构
- */
-interface ApiErrorResponse {
-  error?: string
-  message?: string
-  code?: string
+/** 分页结果 */
+export interface PaginatedResult<T> {
+  data: T[]
+  meta: PaginationMeta
 }
 
 class ApiClient {
@@ -60,55 +58,54 @@ class ApiClient {
   }
 
   /**
-   * 处理响应
-   * 统一错误处理，401/403 自动登出
+   * 处理响应 - 自动解包 data 字段
    */
   private async handleResponse<T>(response: Response): Promise<T> {
-    if (!response.ok) {
-      // 401 或 403 自动登出
-      if (response.status === 401 || response.status === 403) {
-        useAuthStore.getState().logout()
-        throw new ApiError(
-          response.status,
-          response.status === 401 ? 'UNAUTHORIZED' : 'FORBIDDEN',
-          response.status === 401 ? 'Session expired, please log in again' : 'Access denied'
-        )
-      }
-
-      // 解析错误响应
-      const errorData: ApiErrorResponse = await response.json().catch(() => ({}))
-
-      throw new ApiError(
-        response.status,
-        errorData.code || errorData.error || 'UNKNOWN_ERROR',
-        errorData.message || `Request failed (${response.status})`
-      )
+    // 处理 204 No Content
+    if (response.status === 204) {
+      return undefined as T
     }
 
-    // 处理空响应
+    // 处理非 JSON 响应
     const contentType = response.headers.get('content-type')
     if (!contentType || !contentType.includes('application/json')) {
+      if (!response.ok) {
+        throw new ApiError(response.status, 'NETWORK_ERROR', 'Request failed')
+      }
       return {} as T
     }
 
-    return response.json()
+    const json = await response.json()
+
+    // 处理错误响应
+    if (!response.ok || json.success === false) {
+      // 401/403 自动登出
+      if (response.status === 401 || response.status === 403) {
+        useAuthStore.getState().logout()
+      }
+
+      const errorResponse = json as ApiErrorResponseType
+      throw new ApiError(
+        response.status,
+        errorResponse.error?.code || 'UNKNOWN_ERROR',
+        errorResponse.error?.message || `Request failed (${response.status})`
+      )
+    }
+
+    // 成功响应 - 返回 data 字段
+    return json.data
   }
 
   /**
    * 发送请求
-   * 使用 Bearer Token 认证
    */
-  private async request<T>(
-    endpoint: string,
-    options?: RequestInit
-  ): Promise<T> {
+  private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const token = getAuthToken()
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       ...options?.headers,
     }
 
-    // 添加 Authorization header
     if (token) {
       ;(headers as Record<string, string>)['Authorization'] = `Bearer ${token}`
     }
@@ -121,8 +118,46 @@ class ApiClient {
     return this.handleResponse<T>(response)
   }
 
+  /**
+   * GET 请求
+   */
   async get<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint)
+  }
+
+  /**
+   * GET 分页请求 - 返回 data + meta
+   * 直接从后端响应中提取分页结构
+   */
+  async getPaginated<T>(endpoint: string): Promise<PaginatedResult<T>> {
+    const token = getAuthToken()
+    const headers: HeadersInit = { 'Content-Type': 'application/json' }
+    if (token) {
+      ;(headers as Record<string, string>)['Authorization'] = `Bearer ${token}`
+    }
+
+    const response = await fetch(`${this.baseURL}${endpoint}`, { headers })
+
+    // 处理 401/403
+    if (response.status === 401 || response.status === 403) {
+      useAuthStore.getState().logout()
+    }
+
+    const json = await response.json().catch(() => ({}))
+
+    if (!response.ok || json.success === false) {
+      const errorResponse = json as ApiErrorResponseType
+      throw new ApiError(
+        response.status,
+        errorResponse.error?.code || 'UNKNOWN_ERROR',
+        errorResponse.error?.message || `Request failed (${response.status})`
+      )
+    }
+
+    return {
+      data: json.data,
+      meta: json.meta,
+    }
   }
 
   async post<T>(endpoint: string, data?: unknown): Promise<T> {
@@ -153,6 +188,29 @@ class ApiClient {
   }
 
   /**
+   * GET 请求返回 Blob（用于文件下载）
+   */
+  async getBlob(endpoint: string): Promise<Blob> {
+    const token = getAuthToken()
+    const headers: HeadersInit = {}
+
+    if (token) {
+      ;(headers as Record<string, string>)['Authorization'] = `Bearer ${token}`
+    }
+
+    const response = await fetch(`${this.baseURL}${endpoint}`, { headers })
+
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        useAuthStore.getState().logout()
+      }
+      throw new ApiError(response.status, 'DOWNLOAD_ERROR', 'Download failed')
+    }
+
+    return response.blob()
+  }
+
+  /**
    * POST 请求返回 Blob（用于文件下载）
    */
   async postBlob(endpoint: string, data?: unknown): Promise<Blob> {
@@ -174,11 +232,6 @@ class ApiClient {
     if (!response.ok) {
       if (response.status === 401 || response.status === 403) {
         useAuthStore.getState().logout()
-        throw new ApiError(
-          response.status,
-          response.status === 401 ? 'UNAUTHORIZED' : 'FORBIDDEN',
-          response.status === 401 ? 'Session expired, please log in again' : 'Access denied'
-        )
       }
       throw new ApiError(response.status, 'DOWNLOAD_ERROR', 'Download failed')
     }

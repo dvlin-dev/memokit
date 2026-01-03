@@ -15,6 +15,15 @@ export interface PaginationParams {
   offset: number;
 }
 
+export interface PaginationResult<T> {
+  items: T[];
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+  };
+}
+
 /**
  * Parse and validate pagination parameters from query strings
  * - Returns validated integers within allowed ranges
@@ -67,4 +76,23 @@ export function parsePositiveInt(
   }
 
   return parsed;
+}
+
+/**
+ * Create a paginated result
+ * The response interceptor will transform this to { success, data, meta, timestamp }
+ */
+export function createPaginatedResult<T>(
+  items: T[],
+  total: number,
+  params: PaginationParams,
+): PaginationResult<T> {
+  return {
+    items,
+    pagination: {
+      total,
+      limit: params.limit,
+      offset: params.offset,
+    },
+  };
 }

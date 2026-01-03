@@ -93,7 +93,6 @@ export class AdminAuthController {
     });
 
     return {
-      success: true,
       user: {
         id: user.id,
         email: user.email,
@@ -118,7 +117,7 @@ export class AdminAuthController {
       });
     }
 
-    return { success: true };
+    return null;
   }
 
   private generateToken(): string {

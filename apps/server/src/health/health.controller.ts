@@ -6,6 +6,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Public } from '../auth/decorators';
+import { SkipResponseWrap } from '../common/decorators';
 import { PrismaService } from '../prisma';
 import { RedisService } from '../redis';
 
@@ -21,6 +22,7 @@ interface HealthCheckResponse {
 
 @ApiTags('Health')
 @Controller('health')
+@SkipResponseWrap()
 export class HealthController {
   private readonly startTime = Date.now();
 

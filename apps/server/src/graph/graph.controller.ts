@@ -34,8 +34,7 @@ export class GraphController {
     @Query('userId') userId: string,
     @Query('limit') limit?: number,
   ) {
-    const graph = await this.graphService.getFullGraph(apiKeyId, userId, { limit });
-    return { success: true, data: graph };
+    return this.graphService.getFullGraph(apiKeyId, userId, { limit });
   }
 
   /**
@@ -47,12 +46,11 @@ export class GraphController {
     @ApiKeyId() apiKeyId: string,
     @Body() body: { entityId: string; options?: TraversalOptions },
   ) {
-    const graph = await this.graphService.traverse(
+    return this.graphService.traverse(
       apiKeyId,
       body.entityId,
       body.options ?? {},
     );
-    return { success: true, data: graph };
   }
 
   /**
@@ -66,13 +64,12 @@ export class GraphController {
     @Query('targetId') targetId: string,
     @Query('maxDepth') maxDepth?: number,
   ) {
-    const path = await this.graphService.findPath(
+    return this.graphService.findPath(
       apiKeyId,
       sourceId,
       targetId,
       maxDepth ?? 5,
     );
-    return { success: true, data: path };
   }
 
   /**
@@ -86,10 +83,9 @@ export class GraphController {
     @Query('direction') direction?: 'in' | 'out' | 'both',
     @Query('relationTypes') relationTypes?: string,
   ) {
-    const neighbors = await this.graphService.getNeighbors(apiKeyId, entityId, {
+    return this.graphService.getNeighbors(apiKeyId, entityId, {
       direction,
       relationTypes: relationTypes ? relationTypes.split(',') : undefined,
     });
-    return { success: true, data: neighbors };
   }
 }

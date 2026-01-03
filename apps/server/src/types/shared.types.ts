@@ -3,7 +3,7 @@
  * 用于跨模块共享的通用类型
  */
 
-import type { SubscriptionTier } from './tier.types';
+import type { SubscriptionTier } from '../subscription/subscription.constants';
 
 /**
  * 认证请求接口

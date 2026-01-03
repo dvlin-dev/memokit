@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { CurrentUser } from '../auth';
+import { SkipResponseWrap } from '../common/decorators';
 import type { CurrentUserDto } from '../types';
 import { MemoryService } from './memory.service';
 import { parsePaginationParams } from '../common/utils';
@@ -41,9 +42,8 @@ export class ConsoleMemoryController {
     });
 
     return {
-      success: true,
-      data: result.memories,
-      meta: {
+      items: result.memories,
+      pagination: {
         total: result.total,
         limit: pagination.limit,
         offset: pagination.offset,
@@ -56,6 +56,7 @@ export class ConsoleMemoryController {
    * GET /api/console/memories/export
    */
   @Get('export')
+  @SkipResponseWrap()
   async export(
     @CurrentUser() user: CurrentUserDto,
     @Query('apiKeyId') apiKeyId?: string,

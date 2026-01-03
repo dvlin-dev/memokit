@@ -12,7 +12,7 @@ import {
 import { hashPassword, verifyPassword } from 'better-auth/crypto';
 import { PrismaService } from '../prisma';
 import type { User, Subscription, Quota } from '../../generated/prisma/client';
-import type { SubscriptionTier } from '../types';
+import type { SubscriptionTier } from '../subscription/subscription.constants';
 import type { DeleteAccountDto, UpdateProfileDto, ChangePasswordDto } from './dto';
 
 /** 用户查询结果类型 */

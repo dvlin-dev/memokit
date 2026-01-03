@@ -44,9 +44,8 @@ export class ConsoleEntityController {
     });
 
     return {
-      success: true,
-      data: result.entities,
-      meta: {
+      items: result.entities,
+      pagination: {
         total: result.total,
         limit: pagination.limit,
         offset: pagination.offset,
@@ -60,12 +59,7 @@ export class ConsoleEntityController {
    */
   @Get('types')
   async getTypes(@CurrentUser() user: CurrentUserDto) {
-    const types = await this.entityService.getTypesByUser(user.id);
-
-    return {
-      success: true,
-      data: types,
-    };
+    return this.entityService.getTypesByUser(user.id);
   }
 
   /**

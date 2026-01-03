@@ -1,10 +1,29 @@
 // ============ 统一 API 响应格式 ============
 
+/** 分页元数据 */
+export interface PaginationMeta {
+  total: number;
+  limit: number;
+  offset: number;
+  hasMore: boolean;
+}
+
+/** 成功响应 */
 export interface ApiSuccessResponse<T> {
   success: true;
   data: T;
+  timestamp: string;
 }
 
+/** 分页成功响应 */
+export interface ApiPaginatedResponse<T> {
+  success: true;
+  data: T[];
+  meta: PaginationMeta;
+  timestamp: string;
+}
+
+/** 错误响应 */
 export interface ApiErrorResponse {
   success: false;
   error: {
@@ -12,8 +31,10 @@ export interface ApiErrorResponse {
     message: string;
     details?: unknown;
   };
+  timestamp: string;
 }
 
+/** 通用响应（联合类型） */
 export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
 
 // ============ 配额状态 ============

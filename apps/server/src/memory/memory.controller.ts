@@ -35,8 +35,7 @@ export class MemoryController {
     @ApiKeyId() apiKeyId: string,
     @Body() dto: CreateMemoryDto,
   ) {
-    const memory = await this.memoryService.create(apiKeyId, dto);
-    return { success: true, data: memory };
+    return this.memoryService.create(apiKeyId, dto);
   }
 
   /**
@@ -48,8 +47,7 @@ export class MemoryController {
     @ApiKeyId() apiKeyId: string,
     @Body() dto: SearchMemoryDto,
   ) {
-    const memories = await this.memoryService.search(apiKeyId, dto);
-    return { success: true, data: memories };
+    return this.memoryService.search(apiKeyId, dto);
   }
 
   /**
@@ -65,13 +63,12 @@ export class MemoryController {
     @Query('agentId') agentId?: string,
     @Query('sessionId') sessionId?: string,
   ) {
-    const memories = await this.memoryService.list(apiKeyId, userId, {
+    return this.memoryService.list(apiKeyId, userId, {
       limit,
       offset,
       agentId,
       sessionId,
     });
-    return { success: true, data: memories };
   }
 
   /**
@@ -83,8 +80,7 @@ export class MemoryController {
     @ApiKeyId() apiKeyId: string,
     @Param('id') id: string,
   ) {
-    const memory = await this.memoryService.getById(apiKeyId, id);
-    return { success: true, data: memory };
+    return this.memoryService.getById(apiKeyId, id);
   }
 
   /**
@@ -97,7 +93,7 @@ export class MemoryController {
     @Param('id') id: string,
   ) {
     await this.memoryService.delete(apiKeyId, id);
-    return { success: true };
+    return null;
   }
 
   /**
@@ -110,6 +106,6 @@ export class MemoryController {
     @Param('userId') userId: string,
   ) {
     await this.memoryService.deleteByUser(apiKeyId, userId);
-    return { success: true };
+    return null;
   }
 }
