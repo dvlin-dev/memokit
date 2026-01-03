@@ -115,7 +115,7 @@ function RootComponent() {
 // UI translations
 const translations: Record<string, Record<string, string>> = {
   en: {
-    search: 'Search documentation...',
+    search: 'Search',
     searchNoResult: 'No results found',
     toc: 'On this page',
     tocNoHeading: 'No headings',

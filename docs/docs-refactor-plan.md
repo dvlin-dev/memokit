@@ -376,7 +376,7 @@ export function useMDXComponents() {
 ```typescript
 const translations = {
   en: {
-    search: 'Search documentation...',
+    search: 'Search',
     searchNoResult: 'No results found',
     toc: 'On this page',
     lastUpdate: 'Last updated',
