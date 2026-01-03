@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { Header, Footer } from '@/components/layout'
 import {
   HeroSection,
@@ -10,7 +11,11 @@ import {
   CTASection,
 } from '@/components/landing'
 
-export function HomePage() {
+export const Route = createFileRoute('/')({
+  component: HomePage,
+})
+
+function HomePage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />

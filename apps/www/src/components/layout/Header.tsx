@@ -1,11 +1,11 @@
-import { Link } from 'react-router-dom'
+import { Link } from '@tanstack/react-router'
 import { Container } from './Container'
 import { Button } from '@memokit/ui/primitives'
 
 const navLinks = [
-  { href: 'https://docs.memokit.dev', label: 'Docs' },
-  { href: '/pricing', label: 'Pricing' },
-  { href: '/blog', label: 'Blog' },
+  { href: 'https://docs.memokit.dev', label: 'Docs', external: true },
+  { href: '/pricing', label: 'Pricing', external: false },
+  { href: '/blog', label: 'Blog', external: false },
 ]
 
 export function Header() {
@@ -22,15 +22,25 @@ export function Header() {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className="font-mono text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) =>
+              link.external ? (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="font-mono text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className="font-mono text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {link.label}
+                </Link>
+              )
+            )}
           </nav>
 
           {/* CTA */}
