@@ -4,6 +4,7 @@
  */
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { PageHeader } from '@memokit/ui/composed'
+import { API_BASE_URL } from '@/lib/api-client'
 import {
   Card,
   CardContent,
@@ -173,7 +174,7 @@ export default function MemoryPlaygroundPage() {
 
     try {
       await addRequest.execute(async () => {
-        const response = await fetch('/api/v1/memories', {
+        const response = await fetch(`${API_BASE_URL}/api/v1/memories`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -204,7 +205,7 @@ export default function MemoryPlaygroundPage() {
 
     try {
       await searchRequest.execute(async () => {
-        const response = await fetch('/api/v1/memories/search', {
+        const response = await fetch(`${API_BASE_URL}/api/v1/memories/search`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -239,7 +240,7 @@ export default function MemoryPlaygroundPage() {
           offset: listOffset,
         })
 
-        const response = await fetch(`/api/v1/memories?${params}`, {
+        const response = await fetch(`${API_BASE_URL}/api/v1/memories?${params}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${getApiKey()}`,
@@ -262,7 +263,7 @@ export default function MemoryPlaygroundPage() {
 
     try {
       await getRequest.execute(async () => {
-        const response = await fetch(`/api/v1/memories/${memoryId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/v1/memories/${memoryId}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${getApiKey()}`,
@@ -287,7 +288,7 @@ export default function MemoryPlaygroundPage() {
     getRequest.reset()
 
     try {
-      const response = await fetch(`/api/v1/memories/${memoryId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/memories/${memoryId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${getApiKey()}`,
@@ -311,7 +312,7 @@ export default function MemoryPlaygroundPage() {
 
   const generateCurl = (method: string, endpoint: string, body?: object) => {
     const apiKey = getApiKey()
-    const baseUrl = window.location.origin
+    const baseUrl = API_BASE_URL || window.location.origin
     const headers = [
       `-H "Authorization: Bearer ${apiKey || 'YOUR_API_KEY'}"`,
       body ? `-H "Content-Type: application/json"` : '',

@@ -279,6 +279,40 @@ interface MemoryContext {  // Don't define here
 4. **DRY Principle**: Extract and reuse duplicate logic
 5. **Avoid Premature Optimization**: Ensure correctness and readability first
 
+### API Request Convention (Frontend)
+
+**Before making any API request, always check if the project has an existing API client.**
+
+For `apps/console` and `apps/admin`:
+
+```typescript
+// ✅ Correct: Use the centralized apiClient
+import { apiClient } from '@/lib/api-client'
+import { CONSOLE_API } from '@/lib/api-paths'
+
+const response = await apiClient.get<ApiResponse<Data>>(CONSOLE_API.ENDPOINT)
+
+// ✅ Correct: For custom auth (e.g., API key), use API_BASE_URL
+import { API_BASE_URL } from '@/lib/api-client'
+
+const response = await fetch(`${API_BASE_URL}/api/v1/endpoint`, {
+  headers: { 'Authorization': `Bearer ${apiKey}` }
+})
+```
+
+```typescript
+// ❌ Wrong: Direct fetch with relative path (ignores VITE_API_URL in production)
+const response = await fetch('/api/v1/endpoint', { ... })
+
+// ❌ Wrong: Using window.location.origin (fails when API is on different domain)
+const response = await fetch(`${window.location.origin}/api/v1/endpoint`, { ... })
+```
+
+**Key points:**
+- `apiClient` handles auth token injection and error handling automatically
+- `API_BASE_URL` respects `VITE_API_URL` environment variable for production deployments
+- Relative paths like `/api/...` only work in development (via Vite proxy)
+
 ### Comment Guidelines
 
 1. **Core Logic Must Have Comments**: Complex algorithms, business rules, edge cases need explanation
@@ -419,4 +453,4 @@ apps/server/
 
 ---
 
-*Version: 1.1 | Updated: 2026-01*
+*Version: 1.2 | Updated: 2026-01*

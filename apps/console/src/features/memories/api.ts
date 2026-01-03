@@ -1,7 +1,7 @@
 /**
  * Memories API
  */
-import { apiClient } from '@/lib/api-client'
+import { apiClient, API_BASE_URL } from '@/lib/api-client'
 import { CONSOLE_API } from '@/lib/api-paths'
 import type { Memory, ApiResponse, ListMemoriesParams, ExportFormat } from './types'
 
@@ -38,7 +38,7 @@ export async function exportMemories(
   const query = searchParams.toString()
   const url = `${CONSOLE_API.MEMORIES}/export?${query}`
 
-  return apiClient.postBlob(url.replace('/export?', '/export?'), undefined)
+  return apiClient.postBlob(url, undefined)
 }
 
 /** 下载导出的 Memories */
@@ -55,7 +55,7 @@ export async function downloadMemories(
 
   // 直接打开下载链接
   const token = localStorage.getItem('auth-token')
-  const fullUrl = `${window.location.origin}${url}`
+  const fullUrl = `${API_BASE_URL}${url}`
 
   const response = await fetch(fullUrl, {
     headers: {
