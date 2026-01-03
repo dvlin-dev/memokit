@@ -20,8 +20,7 @@ export class AdminDashboardController {
    */
   @Get()
   async getDashboardStats() {
-    const stats = await this.adminService.getDashboardStats();
-    return { success: true, data: stats };
+    return this.adminService.getDashboardStats();
   }
 
   /**
@@ -30,7 +29,6 @@ export class AdminDashboardController {
    */
   @Get('charts')
   async getChartData() {
-    const data = await this.adminService.getChartData();
-    return { success: true, data };
+    return this.adminService.getChartData();
   }
 }

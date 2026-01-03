@@ -3,7 +3,7 @@
  * 当前用户类型定义（用于控制器中的 @CurrentUser() 装饰器）
  */
 
-import type { SubscriptionTier } from './tier.types';
+import type { SubscriptionTier } from '../subscription/subscription.constants';
 
 /**
  * 当前已认证用户信息

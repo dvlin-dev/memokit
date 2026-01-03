@@ -42,12 +42,7 @@ export class ApiKeyController {
     }
 
     const dto: CreateApiKeyDto = parsed.data;
-    const result = await this.apiKeyService.create(user.id, dto);
-
-    return {
-      success: true,
-      data: result,
-    };
+    return this.apiKeyService.create(user.id, dto);
   }
 
   /**
@@ -56,12 +51,7 @@ export class ApiKeyController {
    */
   @Get()
   async findAll(@CurrentUser() user: CurrentUserDto) {
-    const keys = await this.apiKeyService.findAllByUser(user.id);
-
-    return {
-      success: true,
-      data: keys,
-    };
+    return this.apiKeyService.findAllByUser(user.id);
   }
 
   /**
@@ -70,12 +60,7 @@ export class ApiKeyController {
    */
   @Get(':id')
   async findOne(@CurrentUser() user: CurrentUserDto, @Param('id') id: string) {
-    const key = await this.apiKeyService.findOne(user.id, id);
-
-    return {
-      success: true,
-      data: key,
-    };
+    return this.apiKeyService.findOne(user.id, id);
   }
 
   /**
@@ -94,12 +79,7 @@ export class ApiKeyController {
     }
 
     const dto: UpdateApiKeyDto = parsed.data;
-    const updated = await this.apiKeyService.update(user.id, id, dto);
-
-    return {
-      success: true,
-      data: updated,
-    };
+    return this.apiKeyService.update(user.id, id, dto);
   }
 
   /**

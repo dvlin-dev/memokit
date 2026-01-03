@@ -34,8 +34,7 @@ export class AdminSubscriptionsController {
     if (!parsed.success) {
       throw new BadRequestException(parsed.error.issues[0]?.message);
     }
-    const result = await this.adminService.getSubscriptions(parsed.data);
-    return { success: true, data: result };
+    return this.adminService.getSubscriptions(parsed.data);
   }
 
   /**
@@ -44,8 +43,7 @@ export class AdminSubscriptionsController {
    */
   @Get(':id')
   async getSubscription(@Param('id') id: string) {
-    const subscription = await this.adminService.getSubscription(id);
-    return { success: true, data: subscription };
+    return this.adminService.getSubscription(id);
   }
 
   /**
@@ -58,10 +56,6 @@ export class AdminSubscriptionsController {
     if (!parsed.success) {
       throw new BadRequestException(parsed.error.issues[0]?.message);
     }
-    const subscription = await this.adminService.updateSubscription(
-      id,
-      parsed.data,
-    );
-    return { success: true, data: subscription };
+    return this.adminService.updateSubscription(id, parsed.data);
   }
 }

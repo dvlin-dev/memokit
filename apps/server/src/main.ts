@@ -1,8 +1,10 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { Logger, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 /**
  * 检查 origin 是否匹配模式
@@ -95,6 +97,13 @@ async function bootstrap() {
     type: VersioningType.URI,
     defaultVersion: '1',
   });
+
+  // 全局响应拦截器 - 统一响应格式
+  const reflector = app.get(Reflector);
+  app.useGlobalInterceptors(new ResponseInterceptor(reflector));
+
+  // 全局异常过滤器 - 统一错误格式
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   // Swagger API 文档配置
   const swaggerConfig = new DocumentBuilder()

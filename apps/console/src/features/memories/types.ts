@@ -2,17 +2,6 @@
  * Memories 类型定义
  */
 
-/** API 响应包装 */
-export interface ApiResponse<T> {
-  success: boolean
-  data: T
-  meta?: {
-    total: number
-    limit: number
-    offset: number
-  }
-}
-
 /** Memory 列表项 */
 export interface Memory {
   id: string

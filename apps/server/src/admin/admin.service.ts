@@ -152,8 +152,7 @@ export class AdminService {
   // =============================================
 
   async getUsers(query: UserQuery) {
-    const { page, limit, search, isAdmin } = query;
-    const skip = (page - 1) * limit;
+    const { limit, offset, search, isAdmin } = query;
 
     const where = {
       deletedAt: null,
@@ -169,7 +168,7 @@ export class AdminService {
     const [users, total] = await Promise.all([
       this.prisma.user.findMany({
         where,
-        skip,
+        skip: offset,
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
@@ -204,10 +203,9 @@ export class AdminService {
         updatedAt: user.updatedAt,
       })),
       pagination: {
-        page,
-        limit,
         total,
-        totalPages: Math.ceil(total / limit),
+        limit,
+        offset,
       },
     };
   }
@@ -307,8 +305,7 @@ export class AdminService {
   // =============================================
 
   async getSubscriptions(query: SubscriptionQuery) {
-    const { page, limit, search, tier, status } = query;
-    const skip = (page - 1) * limit;
+    const { limit, offset, search, tier, status } = query;
 
     const where = {
       ...(tier && { tier }),
@@ -326,7 +323,7 @@ export class AdminService {
     const [subscriptions, total] = await Promise.all([
       this.prisma.subscription.findMany({
         where,
-        skip,
+        skip: offset,
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
@@ -353,10 +350,9 @@ export class AdminService {
         updatedAt: sub.updatedAt,
       })),
       pagination: {
-        page,
-        limit,
         total,
-        totalPages: Math.ceil(total / limit),
+        limit,
+        offset,
       },
     };
   }
@@ -426,8 +422,7 @@ export class AdminService {
   // =============================================
 
   async getOrders(query: OrderQuery) {
-    const { page, limit, search, status, type } = query;
-    const skip = (page - 1) * limit;
+    const { limit, offset, search, status, type } = query;
 
     // Build user search filter separately
     const userFilter = search
@@ -450,7 +445,7 @@ export class AdminService {
     const [orders, total] = await Promise.all([
       this.prisma.paymentOrder.findMany({
         where,
-        skip,
+        skip: offset,
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
@@ -483,10 +478,9 @@ export class AdminService {
         };
       }),
       pagination: {
-        page,
-        limit,
         total,
-        totalPages: Math.ceil(total / limit),
+        limit,
+        offset,
       },
     };
   }

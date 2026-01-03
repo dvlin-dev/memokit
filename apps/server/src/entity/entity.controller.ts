@@ -35,8 +35,7 @@ export class EntityController {
     @ApiKeyId() apiKeyId: string,
     @Body() dto: CreateEntityDto,
   ) {
-    const entity = await this.entityService.create(apiKeyId, dto);
-    return { success: true, data: entity };
+    return this.entityService.create(apiKeyId, dto);
   }
 
   /**
@@ -48,8 +47,7 @@ export class EntityController {
     @ApiKeyId() apiKeyId: string,
     @Body() dtos: CreateEntityDto[],
   ) {
-    const entities = await this.entityService.createMany(apiKeyId, dtos);
-    return { success: true, data: entities };
+    return this.entityService.createMany(apiKeyId, dtos);
   }
 
   /**
@@ -64,12 +62,11 @@ export class EntityController {
     @Query('limit') limit?: number,
     @Query('offset') offset?: number,
   ) {
-    const entities = await this.entityService.list(apiKeyId, userId, {
+    return this.entityService.list(apiKeyId, userId, {
       type,
       limit,
       offset,
     });
-    return { success: true, data: entities };
   }
 
   /**
@@ -81,8 +78,7 @@ export class EntityController {
     @ApiKeyId() apiKeyId: string,
     @Param('id') id: string,
   ) {
-    const entity = await this.entityService.getById(apiKeyId, id);
-    return { success: true, data: entity };
+    return this.entityService.getById(apiKeyId, id);
   }
 
   /**
@@ -95,6 +91,6 @@ export class EntityController {
     @Param('id') id: string,
   ) {
     await this.entityService.delete(apiKeyId, id);
-    return { success: true };
+    return null;
   }
 }

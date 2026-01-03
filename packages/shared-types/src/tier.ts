@@ -1,18 +1,22 @@
 // ============ 订阅套餐 ============
 
-export enum SubscriptionTier {
-  FREE = 'FREE',
-  BASIC = 'BASIC',
-  PRO = 'PRO',
-  TEAM = 'TEAM',
-}
+export const SubscriptionTier = {
+  FREE: 'FREE',
+  BASIC: 'BASIC',
+  PRO: 'PRO',
+  TEAM: 'TEAM',
+} as const;
 
-export enum SubscriptionStatus {
-  ACTIVE = 'ACTIVE',
-  CANCELED = 'CANCELED',
-  PAST_DUE = 'PAST_DUE',
-  EXPIRED = 'EXPIRED',
-}
+export type SubscriptionTier = (typeof SubscriptionTier)[keyof typeof SubscriptionTier];
+
+export const SubscriptionStatus = {
+  ACTIVE: 'ACTIVE',
+  CANCELED: 'CANCELED',
+  PAST_DUE: 'PAST_DUE',
+  EXPIRED: 'EXPIRED',
+} as const;
+
+export type SubscriptionStatus = (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus];
 
 export interface TierConfig {
   tier: SubscriptionTier;

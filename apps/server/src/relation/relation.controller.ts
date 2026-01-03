@@ -35,8 +35,7 @@ export class RelationController {
     @ApiKeyId() apiKeyId: string,
     @Body() dto: CreateRelationDto,
   ) {
-    const relation = await this.relationService.create(apiKeyId, dto);
-    return { success: true, data: relation };
+    return this.relationService.create(apiKeyId, dto);
   }
 
   /**
@@ -48,8 +47,7 @@ export class RelationController {
     @ApiKeyId() apiKeyId: string,
     @Body() dtos: CreateRelationDto[],
   ) {
-    const relations = await this.relationService.createMany(apiKeyId, dtos);
-    return { success: true, data: relations };
+    return this.relationService.createMany(apiKeyId, dtos);
   }
 
   /**
@@ -64,12 +62,11 @@ export class RelationController {
     @Query('limit') limit?: number,
     @Query('offset') offset?: number,
   ) {
-    const relations = await this.relationService.list(apiKeyId, userId, {
+    return this.relationService.list(apiKeyId, userId, {
       type,
       limit,
       offset,
     });
-    return { success: true, data: relations };
   }
 
   /**
@@ -81,8 +78,7 @@ export class RelationController {
     @ApiKeyId() apiKeyId: string,
     @Param('entityId') entityId: string,
   ) {
-    const relations = await this.relationService.getByEntity(apiKeyId, entityId);
-    return { success: true, data: relations };
+    return this.relationService.getByEntity(apiKeyId, entityId);
   }
 
   /**
@@ -95,6 +91,6 @@ export class RelationController {
     @Param('id') id: string,
   ) {
     await this.relationService.delete(apiKeyId, id);
-    return { success: true };
+    return null;
   }
 }

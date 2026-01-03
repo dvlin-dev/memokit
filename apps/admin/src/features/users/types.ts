@@ -1,7 +1,7 @@
 /**
  * Users 类型定义
  */
-export type { ApiResponse, Pagination, PaginatedResponse } from '@/lib/types';
+export type { PaginatedResponse } from '@/lib/types';
 import type {
   SubscriptionTier,
   SubscriptionStatus,
@@ -44,7 +44,7 @@ export interface UserDetail extends UserListItem {
 
 /** 用户查询参数 */
 export interface UserQuery {
-  page?: number;
+  offset?: number;
   limit?: number;
   search?: string;
   isAdmin?: boolean;

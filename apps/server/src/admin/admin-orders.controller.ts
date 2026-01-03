@@ -32,8 +32,7 @@ export class AdminOrdersController {
     if (!parsed.success) {
       throw new BadRequestException(parsed.error.issues[0]?.message);
     }
-    const result = await this.adminService.getOrders(parsed.data);
-    return { success: true, data: result };
+    return this.adminService.getOrders(parsed.data);
   }
 
   /**
@@ -42,7 +41,6 @@ export class AdminOrdersController {
    */
   @Get(':id')
   async getOrder(@Param('id') id: string) {
-    const order = await this.adminService.getOrder(id);
-    return { success: true, data: order };
+    return this.adminService.getOrder(id);
   }
 }

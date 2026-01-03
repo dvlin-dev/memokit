@@ -6,6 +6,7 @@ import type {
 } from 'express';
 import { AuthService } from './auth.service';
 import { Public } from './decorators';
+import { SkipResponseWrap } from '../common/decorators';
 
 /**
  * Better Auth 路由控制器
@@ -13,6 +14,7 @@ import { Public } from './decorators';
  */
 @ApiTags('Auth')
 @Controller({ path: 'auth', version: VERSION_NEUTRAL })
+@SkipResponseWrap()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

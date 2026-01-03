@@ -2,7 +2,7 @@
  * API Key 模块类型定义
  */
 
-import type { SubscriptionTier } from '../types/tier.types';
+import type { SubscriptionTier } from '../subscription/subscription.constants';
 
 /** API Key 验证结果（用于 Guard 和公开 API） */
 export interface ApiKeyValidationResult {

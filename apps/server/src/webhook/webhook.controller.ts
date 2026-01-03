@@ -39,8 +39,7 @@ export class WebhookController {
     if (!parsed.success) {
       throw new BadRequestException(parsed.error.issues[0]?.message);
     }
-    const result = await this.webhookService.create(user.id, parsed.data);
-    return { success: true, data: result };
+    return this.webhookService.create(user.id, parsed.data);
   }
 
   /**
@@ -49,8 +48,7 @@ export class WebhookController {
    */
   @Get()
   async findAll(@CurrentUser() user: CurrentUserDto) {
-    const webhooks = await this.webhookService.findAllByUser(user.id);
-    return { success: true, data: webhooks };
+    return this.webhookService.findAllByUser(user.id);
   }
 
   /**
@@ -62,8 +60,7 @@ export class WebhookController {
     @CurrentUser() user: CurrentUserDto,
     @Param('id') id: string,
   ) {
-    const webhook = await this.webhookService.findOne(id, user.id);
-    return { success: true, data: webhook };
+    return this.webhookService.findOne(id, user.id);
   }
 
   /**
@@ -80,8 +77,7 @@ export class WebhookController {
     if (!parsed.success) {
       throw new BadRequestException(parsed.error.issues[0]?.message);
     }
-    const updated = await this.webhookService.update(id, user.id, parsed.data);
-    return { success: true, data: updated };
+    return this.webhookService.update(id, user.id, parsed.data);
   }
 
   /**
@@ -106,8 +102,7 @@ export class WebhookController {
     @CurrentUser() user: CurrentUserDto,
     @Param('id') id: string,
   ) {
-    const webhook = await this.webhookService.regenerateSecret(id, user.id);
-    return { success: true, data: webhook };
+    return this.webhookService.regenerateSecret(id, user.id);
   }
 
   /**
@@ -121,19 +116,21 @@ export class WebhookController {
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
   ) {
+    const parsedLimit = limit ? parseInt(limit, 10) : 20;
+    const parsedOffset = offset ? parseInt(offset, 10) : 0;
+
     const result = await this.webhookService.getAllDeliveries(user.id, {
       webhookId,
-      limit: limit ? parseInt(limit, 10) : undefined,
-      offset: offset ? parseInt(offset, 10) : undefined,
+      limit: parsedLimit,
+      offset: parsedOffset,
     });
 
     return {
-      success: true,
-      data: result.deliveries,
-      meta: {
+      items: result.deliveries,
+      pagination: {
         total: result.total,
-        limit: limit ? parseInt(limit, 10) : 20,
-        offset: offset ? parseInt(offset, 10) : 0,
+        limit: parsedLimit,
+        offset: parsedOffset,
       },
     };
   }
@@ -149,18 +146,20 @@ export class WebhookController {
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
   ) {
+    const parsedLimit = limit ? parseInt(limit, 10) : 20;
+    const parsedOffset = offset ? parseInt(offset, 10) : 0;
+
     const result = await this.webhookService.getDeliveries(id, user.id, {
-      limit: limit ? parseInt(limit, 10) : undefined,
-      offset: offset ? parseInt(offset, 10) : undefined,
+      limit: parsedLimit,
+      offset: parsedOffset,
     });
 
     return {
-      success: true,
-      data: result.deliveries,
-      meta: {
+      items: result.deliveries,
+      pagination: {
         total: result.total,
-        limit: limit ? parseInt(limit, 10) : 20,
-        offset: offset ? parseInt(offset, 10) : 0,
+        limit: parsedLimit,
+        offset: parsedOffset,
       },
     };
   }

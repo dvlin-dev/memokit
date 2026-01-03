@@ -2,8 +2,9 @@
  * Memories API
  */
 import { apiClient, API_BASE_URL } from '@/lib/api-client'
+import { getAuthToken } from '@/stores/auth'
 import { CONSOLE_API } from '@/lib/api-paths'
-import type { Memory, ApiResponse, ListMemoriesParams, ExportFormat } from './types'
+import type { Memory, ListMemoriesParams, ExportFormat } from './types'
 
 /** 获取 Memory 列表 */
 export async function getMemories(
@@ -12,17 +13,17 @@ export async function getMemories(
   const searchParams = new URLSearchParams()
 
   if (params.apiKeyId) searchParams.set('apiKeyId', params.apiKeyId)
-  if (params.limit) searchParams.set('limit', String(params.limit))
-  if (params.offset) searchParams.set('offset', String(params.offset))
+  if (params.limit !== undefined) searchParams.set('limit', String(params.limit))
+  if (params.offset !== undefined) searchParams.set('offset', String(params.offset))
 
   const query = searchParams.toString()
   const url = query ? `${CONSOLE_API.MEMORIES}?${query}` : CONSOLE_API.MEMORIES
 
-  const response = await apiClient.get<ApiResponse<Memory[]>>(url)
+  const result = await apiClient.getPaginated<Memory>(url)
 
   return {
-    memories: response.data,
-    total: response.meta?.total ?? response.data.length,
+    memories: result.data,
+    total: result.meta.total,
   }
 }
 
@@ -53,8 +54,7 @@ export async function downloadMemories(
   const query = searchParams.toString()
   const url = `${CONSOLE_API.MEMORIES}/export?${query}`
 
-  // 直接打开下载链接
-  const token = localStorage.getItem('auth-token')
+  const token = getAuthToken()
   const fullUrl = `${API_BASE_URL}${url}`
 
   const response = await fetch(fullUrl, {

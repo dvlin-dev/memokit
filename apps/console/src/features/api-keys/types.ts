@@ -32,9 +32,3 @@ export interface UpdateApiKeyRequest {
   name?: string
   isActive?: boolean
 }
-
-/** API 响应包装 */
-export interface ApiResponse<T> {
-  success: boolean
-  data: T
-}

@@ -2,12 +2,6 @@
  * Webhooks 类型定义
  */
 
-/** API 响应包装 */
-export interface ApiResponse<T> {
-  success: boolean
-  data: T
-}
-
 /** Webhook 事件类型 */
 export type WebhookEvent = 'memory.created' | 'memory.updated' | 'memory.deleted'
 

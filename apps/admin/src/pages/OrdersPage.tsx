@@ -38,15 +38,20 @@ import {
 
 const STATUS_OPTIONS: OrderStatus[] = ['pending', 'completed', 'failed', 'refunded'];
 const TYPE_OPTIONS: OrderType[] = ['subscription', 'usage_billing'];
+const DEFAULT_LIMIT = 20;
 
 export default function OrdersPage() {
-  const [query, setQuery] = useState<OrderQuery>({ page: 1, limit: 20 });
+  const [query, setQuery] = useState<OrderQuery>({ offset: 0, limit: DEFAULT_LIMIT });
   const [searchInput, setSearchInput] = useState('');
 
   const { data, isLoading } = useOrders(query);
 
+  // 计算当前页码和总页数
+  const currentPage = Math.floor((query.offset ?? 0) / DEFAULT_LIMIT) + 1;
+  const totalPages = data ? Math.ceil(data.pagination.total / DEFAULT_LIMIT) : 1;
+
   const handleSearch = () => {
-    setQuery((prev) => ({ ...prev, page: 1, search: searchInput || undefined }));
+    setQuery((prev) => ({ ...prev, offset: 0, search: searchInput || undefined }));
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -56,13 +61,13 @@ export default function OrdersPage() {
   };
 
   const handlePageChange = (page: number) => {
-    setQuery((prev) => ({ ...prev, page }));
+    setQuery((prev) => ({ ...prev, offset: (page - 1) * DEFAULT_LIMIT }));
   };
 
   const handleFilterStatus = (status: string) => {
     setQuery((prev) => ({
       ...prev,
-      page: 1,
+      offset: 0,
       status: status === 'all' ? undefined : (status as OrderStatus),
     }));
   };
@@ -70,7 +75,7 @@ export default function OrdersPage() {
   const handleFilterType = (type: string) => {
     setQuery((prev) => ({
       ...prev,
-      page: 1,
+      offset: 0,
       type: type === 'all' ? undefined : (type as OrderType),
     }));
   };
@@ -182,11 +187,11 @@ export default function OrdersPage() {
                 </TableBody>
               </Table>
 
-              {data.pagination.totalPages > 1 && (
+              {totalPages > 1 && (
                 <div className="mt-4 flex justify-center">
                   <SimplePagination
-                    page={data.pagination.page}
-                    totalPages={data.pagination.totalPages}
+                    page={currentPage}
+                    totalPages={totalPages}
                     onPageChange={handlePageChange}
                   />
                 </div>
