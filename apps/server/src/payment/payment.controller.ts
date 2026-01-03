@@ -3,12 +3,12 @@
  * 支付相关 API
  */
 
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, VERSION_NEUTRAL } from '@nestjs/common';
 import { CurrentUser } from '../auth';
 import { PrismaService } from '../prisma';
 import type { CurrentUserDto } from '../types';
 
-@Controller('api/payment')
+@Controller({ path: 'payment', version: VERSION_NEUTRAL })
 export class PaymentController {
   constructor(private readonly prisma: PrismaService) {}
 

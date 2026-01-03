@@ -9,6 +9,7 @@ import {
   Query,
   Param,
   BadRequestException,
+  VERSION_NEUTRAL,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { RequireAdmin } from '../auth';
@@ -16,7 +17,7 @@ import { AdminService } from './admin.service';
 import { orderQuerySchema } from './dto';
 
 @ApiTags('Admin')
-@Controller('api/admin/orders')
+@Controller({ path: 'admin/orders', version: VERSION_NEUTRAL })
 @RequireAdmin()
 export class AdminOrdersController {
   constructor(private readonly adminService: AdminService) {}

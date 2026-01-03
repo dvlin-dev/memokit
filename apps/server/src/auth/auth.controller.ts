@@ -1,4 +1,4 @@
-import { All, Controller, Req, Res } from '@nestjs/common';
+import { All, Controller, Req, Res, VERSION_NEUTRAL } from '@nestjs/common';
 import { ApiTags, ApiExcludeEndpoint } from '@nestjs/swagger';
 import type {
   Request as ExpressRequest,
@@ -12,7 +12,7 @@ import { Public } from './decorators';
  * 处理 /api/auth/* 的所有请求
  */
 @ApiTags('Auth')
-@Controller('api/auth')
+@Controller({ path: 'auth', version: VERSION_NEUTRAL })
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

@@ -14,6 +14,7 @@ import {
   HttpCode,
   HttpStatus,
   BadRequestException,
+  VERSION_NEUTRAL,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { RequireAdmin } from '../auth';
@@ -21,7 +22,7 @@ import { AdminService } from './admin.service';
 import { userQuerySchema, updateUserSchema } from './dto';
 
 @ApiTags('Admin')
-@Controller('api/admin/users')
+@Controller({ path: 'admin/users', version: VERSION_NEUTRAL })
 @RequireAdmin()
 export class AdminUsersController {
   constructor(private readonly adminService: AdminService) {}

@@ -9,6 +9,7 @@ import {
   Query,
   Res,
   BadRequestException,
+  VERSION_NEUTRAL,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { CurrentUser } from '../auth';
@@ -16,7 +17,7 @@ import type { CurrentUserDto } from '../types';
 import { MemoryService } from './memory.service';
 import { parsePaginationParams } from '../common/utils';
 
-@Controller('api/console/memories')
+@Controller({ path: 'console/memories', version: VERSION_NEUTRAL })
 export class ConsoleMemoryController {
   constructor(private readonly memoryService: MemoryService) {}
 

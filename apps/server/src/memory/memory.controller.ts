@@ -20,7 +20,7 @@ import { QuotaGuard } from '../quota/quota.guard';
 import { ApiKeyDataIsolationInterceptor } from '../common/interceptors/api-key-isolation.interceptor';
 import { ApiKeyId } from '../common/decorators/api-key.decorator';
 
-@Controller('v1/memories')
+@Controller({ path: 'memories', version: '1' })
 @UseGuards(ApiKeyGuard, QuotaGuard)
 @UseInterceptors(ApiKeyDataIsolationInterceptor)
 export class MemoryController {
@@ -28,7 +28,7 @@ export class MemoryController {
 
   /**
    * 创建 Memory
-   * POST /v1/memories
+   * POST /api/v1/memories
    */
   @Post()
   async create(
@@ -41,7 +41,7 @@ export class MemoryController {
 
   /**
    * 语义搜索 Memory
-   * POST /v1/memories/search
+   * POST /api/v1/memories/search
    */
   @Post('search')
   async search(
@@ -54,7 +54,7 @@ export class MemoryController {
 
   /**
    * 列出 Memory
-   * GET /v1/memories?userId=xxx
+   * GET /api/v1/memories?userId=xxx
    */
   @Get()
   async list(
@@ -76,7 +76,7 @@ export class MemoryController {
 
   /**
    * 获取单个 Memory
-   * GET /v1/memories/:id
+   * GET /api/v1/memories/:id
    */
   @Get(':id')
   async getById(
@@ -89,7 +89,7 @@ export class MemoryController {
 
   /**
    * 删除 Memory
-   * DELETE /v1/memories/:id
+   * DELETE /api/v1/memories/:id
    */
   @Delete(':id')
   async delete(
@@ -102,7 +102,7 @@ export class MemoryController {
 
   /**
    * 删除用户的所有 Memory
-   * DELETE /v1/memories/user/:userId
+   * DELETE /api/v1/memories/user/:userId
    */
   @Delete('user/:userId')
   async deleteByUser(

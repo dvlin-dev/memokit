@@ -4,7 +4,7 @@ import { AuthGuard } from '../auth/auth.guard';
 import { CurrentUser } from '../auth/decorators';
 import type { User } from '../../generated/prisma/client';
 
-@Controller('v1/usage')
+@Controller({ path: 'usage', version: '1' })
 @UseGuards(AuthGuard)
 export class UsageController {
   constructor(private readonly usageService: UsageService) {}

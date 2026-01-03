@@ -20,7 +20,7 @@ import { QuotaGuard } from '../quota/quota.guard';
 import { ApiKeyDataIsolationInterceptor } from '../common/interceptors/api-key-isolation.interceptor';
 import { ApiKeyId } from '../common/decorators/api-key.decorator';
 
-@Controller('v1/entities')
+@Controller({ path: 'entities', version: '1' })
 @UseGuards(ApiKeyGuard, QuotaGuard)
 @UseInterceptors(ApiKeyDataIsolationInterceptor)
 export class EntityController {
@@ -28,7 +28,7 @@ export class EntityController {
 
   /**
    * 创建实体
-   * POST /v1/entities
+   * POST /api/v1/entities
    */
   @Post()
   async create(
@@ -41,7 +41,7 @@ export class EntityController {
 
   /**
    * 批量创建实体
-   * POST /v1/entities/batch
+   * POST /api/v1/entities/batch
    */
   @Post('batch')
   async createMany(
@@ -54,7 +54,7 @@ export class EntityController {
 
   /**
    * 列出实体
-   * GET /v1/entities?userId=xxx
+   * GET /api/v1/entities?userId=xxx
    */
   @Get()
   async list(
@@ -74,7 +74,7 @@ export class EntityController {
 
   /**
    * 获取单个实体
-   * GET /v1/entities/:id
+   * GET /api/v1/entities/:id
    */
   @Get(':id')
   async getById(
@@ -87,7 +87,7 @@ export class EntityController {
 
   /**
    * 删除实体
-   * DELETE /v1/entities/:id
+   * DELETE /api/v1/entities/:id
    */
   @Delete(':id')
   async delete(
