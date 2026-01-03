@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@memokit/shared-types": "workspace:*",
     "@memokit/ui": "workspace:*",
     "@tanstack/react-query": "^5.90.12",
     "@tanstack/react-table": "^8.21.3",

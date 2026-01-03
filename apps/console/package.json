@@ -13,6 +13,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@memokit/shared-types": "workspace:*",
     "@memokit/ui": "workspace:*",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@tiptap/react": "^2.11.5",
