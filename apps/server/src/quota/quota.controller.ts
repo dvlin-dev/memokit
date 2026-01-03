@@ -10,14 +10,14 @@ import { AuthGuard } from '../auth/auth.guard';
 import { CurrentUser } from '../auth/decorators';
 import type { User } from '../../generated/prisma/client';
 
-@Controller('v1/quota')
+@Controller({ path: 'quota', version: '1' })
 @UseGuards(AuthGuard)
 export class QuotaController {
   constructor(private readonly quotaService: QuotaService) {}
 
   /**
    * 获取当前配额状态
-   * GET /v1/quota
+   * GET /api/v1/quota
    */
   @Get()
   async getQuotaStatus(@CurrentUser() user: User) {

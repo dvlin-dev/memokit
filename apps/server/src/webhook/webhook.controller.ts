@@ -15,13 +15,14 @@ import {
   HttpCode,
   HttpStatus,
   BadRequestException,
+  VERSION_NEUTRAL,
 } from '@nestjs/common';
 import { CurrentUser } from '../auth';
 import type { CurrentUserDto } from '../types';
 import { WebhookService } from './webhook.service';
 import { createWebhookSchema, updateWebhookSchema } from './dto';
 
-@Controller('api/console/webhooks')
+@Controller({ path: 'console/webhooks', version: VERSION_NEUTRAL })
 export class WebhookController {
   constructor(private readonly webhookService: WebhookService) {}
 

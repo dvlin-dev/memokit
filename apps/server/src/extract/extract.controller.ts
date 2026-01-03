@@ -39,7 +39,7 @@ export class PreviewDto {
   relationTypes?: string[];
 }
 
-@Controller('v1/extract')
+@Controller({ path: 'extract', version: '1' })
 @UseGuards(ApiKeyGuard, QuotaGuard)
 @UseInterceptors(ApiKeyDataIsolationInterceptor)
 export class ExtractController {
@@ -47,7 +47,7 @@ export class ExtractController {
 
   /**
    * 从文本提取实体和关系
-   * POST /v1/extract
+   * POST /api/v1/extract
    */
   @Post()
   async extract(
@@ -66,7 +66,7 @@ export class ExtractController {
 
   /**
    * 批量提取
-   * POST /v1/extract/batch
+   * POST /api/v1/extract/batch
    */
   @Post('batch')
   async extractBatch(
@@ -85,7 +85,7 @@ export class ExtractController {
 
   /**
    * 预览提取结果（不保存）
-   * POST /v1/extract/preview
+   * POST /api/v1/extract/preview
    */
   @Post('preview')
   async preview(

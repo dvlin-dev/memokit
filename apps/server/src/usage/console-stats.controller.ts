@@ -3,7 +3,7 @@
  * Dashboard statistics API for Console
  */
 
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, VERSION_NEUTRAL } from '@nestjs/common';
 import { CurrentUser } from '../auth';
 import type { CurrentUserDto } from '../types';
 import { UsageService } from './usage.service';
@@ -13,7 +13,7 @@ import { parsePositiveInt } from '../common/utils';
 const MAX_DAYS = 90;
 const MAX_MONTHS = 24;
 
-@Controller('api/console/stats')
+@Controller({ path: 'console/stats', version: VERSION_NEUTRAL })
 export class ConsoleStatsController {
   constructor(private readonly usageService: UsageService) {}
 

@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { Logger } from '@nestjs/common';
+import { Logger, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
@@ -81,6 +81,19 @@ async function bootstrap() {
       }
     },
     credentials: true,
+  });
+
+  // 全局 API 前缀配置
+  // 排除 health 和 webhooks 路由，它们不需要 /api 前缀
+  app.setGlobalPrefix('api', {
+    exclude: ['health', 'health/(.*)', 'webhooks/(.*)'],
+  });
+
+  // URI 版本控制
+  // Public API 使用 v1 版本，Console/Admin API 使用 VERSION_NEUTRAL
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
   });
 
   // Swagger API 文档配置

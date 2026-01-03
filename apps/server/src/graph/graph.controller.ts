@@ -18,7 +18,7 @@ import { QuotaGuard } from '../quota/quota.guard';
 import { ApiKeyDataIsolationInterceptor } from '../common/interceptors/api-key-isolation.interceptor';
 import { ApiKeyId } from '../common/decorators/api-key.decorator';
 
-@Controller('v1/graph')
+@Controller({ path: 'graph', version: '1' })
 @UseGuards(ApiKeyGuard, QuotaGuard)
 @UseInterceptors(ApiKeyDataIsolationInterceptor)
 export class GraphController {
@@ -26,7 +26,7 @@ export class GraphController {
 
   /**
    * 获取用户的完整知识图谱
-   * GET /v1/graph?userId=xxx
+   * GET /api/v1/graph?userId=xxx
    */
   @Get()
   async getFullGraph(
@@ -40,7 +40,7 @@ export class GraphController {
 
   /**
    * 从指定实体遍历图谱
-   * POST /v1/graph/traverse
+   * POST /api/v1/graph/traverse
    */
   @Post('traverse')
   async traverse(
@@ -57,7 +57,7 @@ export class GraphController {
 
   /**
    * 查找两个实体之间的路径
-   * GET /v1/graph/path?sourceId=xxx&targetId=xxx
+   * GET /api/v1/graph/path?sourceId=xxx&targetId=xxx
    */
   @Get('path')
   async findPath(
@@ -77,7 +77,7 @@ export class GraphController {
 
   /**
    * 获取实体的邻居
-   * GET /v1/graph/neighbors/:entityId
+   * GET /api/v1/graph/neighbors/:entityId
    */
   @Get('neighbors/:entityId')
   async getNeighbors(

@@ -22,11 +22,6 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
-      '/v1': {
-        target: process.env.API_TARGET || 'http://localhost:3000',
-        changeOrigin: true,
-        secure: false,
-      },
       '/health': {
         target: process.env.API_TARGET || 'http://localhost:3000',
         changeOrigin: true,

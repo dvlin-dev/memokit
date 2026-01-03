@@ -13,6 +13,7 @@ import {
   HttpCode,
   HttpStatus,
   BadRequestException,
+  VERSION_NEUTRAL,
 } from '@nestjs/common';
 import { CurrentUser } from '../auth';
 import type { CurrentUserDto } from '../types';
@@ -23,7 +24,7 @@ import {
   changePasswordSchema,
 } from './dto';
 
-@Controller('api/user')
+@Controller({ path: 'user', version: VERSION_NEUTRAL })
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

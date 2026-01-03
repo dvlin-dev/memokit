@@ -11,13 +11,14 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  VERSION_NEUTRAL,
 } from '@nestjs/common';
 import { CurrentUser } from '../auth';
 import type { CurrentUserDto } from '../types';
 import { EntityService } from './entity.service';
 import { parsePaginationParams } from '../common/utils';
 
-@Controller('api/console/entities')
+@Controller({ path: 'console/entities', version: VERSION_NEUTRAL })
 export class ConsoleEntityController {
   constructor(private readonly entityService: EntityService) {}
 

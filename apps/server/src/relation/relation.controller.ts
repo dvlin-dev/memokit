@@ -20,7 +20,7 @@ import { QuotaGuard } from '../quota/quota.guard';
 import { ApiKeyDataIsolationInterceptor } from '../common/interceptors/api-key-isolation.interceptor';
 import { ApiKeyId } from '../common/decorators/api-key.decorator';
 
-@Controller('v1/relations')
+@Controller({ path: 'relations', version: '1' })
 @UseGuards(ApiKeyGuard, QuotaGuard)
 @UseInterceptors(ApiKeyDataIsolationInterceptor)
 export class RelationController {
@@ -28,7 +28,7 @@ export class RelationController {
 
   /**
    * 创建关系
-   * POST /v1/relations
+   * POST /api/v1/relations
    */
   @Post()
   async create(
@@ -41,7 +41,7 @@ export class RelationController {
 
   /**
    * 批量创建关系
-   * POST /v1/relations/batch
+   * POST /api/v1/relations/batch
    */
   @Post('batch')
   async createMany(
@@ -54,7 +54,7 @@ export class RelationController {
 
   /**
    * 列出关系
-   * GET /v1/relations?userId=xxx
+   * GET /api/v1/relations?userId=xxx
    */
   @Get()
   async list(
@@ -74,7 +74,7 @@ export class RelationController {
 
   /**
    * 获取实体的关系
-   * GET /v1/relations/entity/:entityId
+   * GET /api/v1/relations/entity/:entityId
    */
   @Get('entity/:entityId')
   async getByEntity(
@@ -87,7 +87,7 @@ export class RelationController {
 
   /**
    * 删除关系
-   * DELETE /v1/relations/:id
+   * DELETE /api/v1/relations/:id
    */
   @Delete(':id')
   async delete(

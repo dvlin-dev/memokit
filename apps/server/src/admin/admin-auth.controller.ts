@@ -10,6 +10,7 @@ import {
   Req,
   UnauthorizedException,
   ForbiddenException,
+  VERSION_NEUTRAL,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import type { Request } from 'express';
@@ -23,7 +24,7 @@ interface AdminLoginDto {
 }
 
 @ApiTags('Admin')
-@Controller('api/admin')
+@Controller({ path: 'admin', version: VERSION_NEUTRAL })
 export class AdminAuthController {
   constructor(private readonly prisma: PrismaService) {}
 
