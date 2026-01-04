@@ -1,7 +1,9 @@
 /**
  * API Key Guard
- * 用于验证 X-API-Key 头的守卫
- * 仅用于公开 API（/api/v1/*），不用于控制台 API
+ *
+ * [INPUT]: Request with X-API-Key header
+ * [OUTPUT]: Validated API Key attached to request
+ * [POS]: Guard for public API endpoints (/api/v1/*)
  */
 
 import {
@@ -14,7 +16,7 @@ import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
 import { ApiKeyService } from './api-key.service';
 import { USE_API_KEY } from './api-key.decorators';
-import type { ApiKeyValidationResult } from './api-key.types';
+import type { ApiKeyValidationResult } from './dto';
 
 @Injectable()
 export class ApiKeyGuard implements CanActivate {

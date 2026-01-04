@@ -1,5 +1,8 @@
 /**
  * [POS]: Memory API Controller
+ *
+ * [INPUT]: CreateMemoryDto, SearchMemoryDto, ListMemoryQueryDto
+ * [OUTPUT]: Memory responses
  */
 
 import {
@@ -13,13 +16,25 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiSecurity,
+  ApiParam,
+} from '@nestjs/swagger';
 import { MemoryService } from './memory.service';
-import { CreateMemoryDto, SearchMemoryDto } from './dto';
+import {
+  CreateMemoryDto,
+  SearchMemoryDto,
+  ListMemoryQueryDto,
+} from './dto';
 import { ApiKeyGuard } from '../api-key/api-key.guard';
 import { QuotaGuard } from '../quota/quota.guard';
 import { ApiKeyDataIsolationInterceptor } from '../common/interceptors/api-key-isolation.interceptor';
 import { ApiKeyId } from '../common/decorators/api-key.decorator';
 
+@ApiTags('Memory')
+@ApiSecurity('apiKey')
 @Controller({ path: 'memories', version: '1' })
 @UseGuards(ApiKeyGuard, QuotaGuard)
 @UseInterceptors(ApiKeyDataIsolationInterceptor)
@@ -27,10 +42,10 @@ export class MemoryController {
   constructor(private readonly memoryService: MemoryService) {}
 
   /**
-   * 创建 Memory
-   * POST /api/v1/memories
+   * Create a new memory
    */
   @Post()
+  @ApiOperation({ summary: 'Create a memory' })
   async create(
     @ApiKeyId() apiKeyId: string,
     @Body() dto: CreateMemoryDto,
@@ -39,10 +54,10 @@ export class MemoryController {
   }
 
   /**
-   * 语义搜索 Memory
-   * POST /api/v1/memories/search
+   * Semantic search memories
    */
   @Post('search')
+  @ApiOperation({ summary: 'Search memories by semantic similarity' })
   async search(
     @ApiKeyId() apiKeyId: string,
     @Body() dto: SearchMemoryDto,
@@ -51,31 +66,28 @@ export class MemoryController {
   }
 
   /**
-   * 列出 Memory
-   * GET /api/v1/memories?userId=xxx
+   * List memories for a user
    */
   @Get()
+  @ApiOperation({ summary: 'List memories for a user' })
   async list(
     @ApiKeyId() apiKeyId: string,
-    @Query('userId') userId: string,
-    @Query('limit') limit?: number,
-    @Query('offset') offset?: number,
-    @Query('agentId') agentId?: string,
-    @Query('sessionId') sessionId?: string,
+    @Query() query: ListMemoryQueryDto,
   ) {
-    return this.memoryService.list(apiKeyId, userId, {
-      limit,
-      offset,
-      agentId,
-      sessionId,
+    return this.memoryService.list(apiKeyId, query.userId, {
+      limit: query.limit,
+      offset: query.offset,
+      agentId: query.agentId,
+      sessionId: query.sessionId,
     });
   }
 
   /**
-   * 获取单个 Memory
-   * GET /api/v1/memories/:id
+   * Get a single memory by ID
    */
   @Get(':id')
+  @ApiOperation({ summary: 'Get a memory by ID' })
+  @ApiParam({ name: 'id', description: 'Memory ID' })
   async getById(
     @ApiKeyId() apiKeyId: string,
     @Param('id') id: string,
@@ -84,10 +96,11 @@ export class MemoryController {
   }
 
   /**
-   * 删除 Memory
-   * DELETE /api/v1/memories/:id
+   * Delete a memory by ID
    */
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a memory' })
+  @ApiParam({ name: 'id', description: 'Memory ID' })
   async delete(
     @ApiKeyId() apiKeyId: string,
     @Param('id') id: string,
@@ -97,10 +110,11 @@ export class MemoryController {
   }
 
   /**
-   * 删除用户的所有 Memory
-   * DELETE /api/v1/memories/user/:userId
+   * Delete all memories for a user
    */
   @Delete('user/:userId')
+  @ApiOperation({ summary: 'Delete all memories for a user' })
+  @ApiParam({ name: 'userId', description: 'User ID' })
   async deleteByUser(
     @ApiKeyId() apiKeyId: string,
     @Param('userId') userId: string,

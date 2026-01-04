@@ -185,79 +185,224 @@ Example:
 
 ## Directory Conventions
 
-Component or module directory structure:
+### Backend Module Structure (NestJS)
 
-- `index.ts` - Entry/exports
-- `*.controller.ts` - Route controllers (backend)
-- `*.service.ts` - Business logic
-- `*.module.ts` - NestJS module definition
-- `*.types.ts` - Module type definitions (must be separate file)
-- `*.constants.ts` - Module constants (must be separate file)
-- `dto/` - Data transfer objects (using Zod)
-- `components/` - Sub-components (frontend)
+```
+module-name/
+├── dto/
+│   ├── index.ts                    # DTO exports
+│   └── module-name.schema.ts       # Zod schemas + inferred types + DTO classes
+├── module-name.module.ts           # NestJS module definition
+├── module-name.controller.ts       # API controller (ApiKeyGuard)
+├── module-name-console.controller.ts # Console controller (SessionGuard) [optional]
+├── module-name.service.ts          # Business logic
+├── module-name.constants.ts        # Constants, enums, config
+├── module-name.errors.ts           # Custom HttpException errors
+├── module-name.types.ts            # External API types only [optional]
+└── index.ts                        # Public exports
+```
 
-## Types & DTO Specification
+**File Responsibilities:**
 
-### DTO Validation (Zod Required)
+| File | Purpose | Contains |
+|------|---------|----------|
+| `dto/*.schema.ts` | Validation + Types | Zod schemas, `z.infer<>` types, `createZodDto()` classes |
+| `*.constants.ts` | Configuration | Enums, config values, error codes |
+| `*.errors.ts` | Error handling | Custom `HttpException` subclasses |
+| `*.types.ts` | External types only | Third-party API response structures (not for validation) |
 
-All request DTOs must use Zod schema for runtime validation:
+### Frontend Component Structure
+
+```
+ComponentName/
+├── index.ts              # Exports
+├── ComponentName.tsx     # Main component
+├── components/           # Sub-components
+└── hooks/                # Component-specific hooks
+```
+
+## Types & DTO Specification (Zod-First)
+
+### Core Principle: Single Source of Truth
+
+**All request/response types MUST derive from Zod schemas using `z.infer<>`.** Do NOT define duplicate TypeScript interfaces.
+
+### File Organization
+
+```
+dto/
+├── index.ts              # Export all DTOs
+└── memory.schema.ts      # All schemas for this module
+```
+
+### Schema File Structure
 
 ```typescript
-// ✅ Correct: Use Zod schema
-// dto/create-memory.dto.ts
+// dto/memory.schema.ts
 import { z } from 'zod';
+import { createZodDto } from '@wahyubucil/nestjs-zod-openapi';
 
-export const createMemorySchema = z.object({
-  content: z.string().min(1).max(10000),
-  userId: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
-});
+// ========== Shared Field Schemas ==========
 
-export type CreateMemoryDto = z.infer<typeof createMemorySchema>;
+const ContentSchema = z
+  .string()
+  .min(1, 'Content is required')
+  .max(10000, 'Content too long')
+  .openapi({ description: 'Memory content', example: 'User prefers dark mode' });
 
-// controller.ts usage
-@Post()
-async create(@Body() body: unknown) {
-  const parsed = createMemorySchema.safeParse(body);
-  if (!parsed.success) {
-    throw new BadRequestException(parsed.error.issues[0]?.message);
+const MetadataSchema = z
+  .record(z.unknown())
+  .optional()
+  .openapi({ description: 'Custom metadata' });
+
+// ========== Request Schemas ==========
+
+export const CreateMemorySchema = z
+  .object({
+    content: ContentSchema,
+    userId: z.string().optional(),
+    metadata: MetadataSchema,
+  })
+  .openapi('CreateMemoryRequest');
+
+export const UpdateMemorySchema = z
+  .object({
+    content: ContentSchema.optional(),
+    metadata: MetadataSchema,
+  })
+  .openapi('UpdateMemoryRequest');
+
+export const SearchMemorySchema = z
+  .object({
+    query: z.string().min(1),
+    limit: z.number().int().min(1).max(100).default(10),
+    threshold: z.number().min(0).max(1).default(0.7),
+  })
+  .openapi('SearchMemoryRequest');
+
+// ========== Response Schemas ==========
+
+export const MemorySchema = z
+  .object({
+    id: z.string(),
+    content: z.string(),
+    metadata: z.record(z.unknown()).nullable(),
+    createdAt: z.string().datetime(),
+    updatedAt: z.string().datetime(),
+  })
+  .openapi('Memory');
+
+// ========== Inferred Types (Single Source of Truth) ==========
+
+export type CreateMemoryInput = z.infer<typeof CreateMemorySchema>;
+export type UpdateMemoryInput = z.infer<typeof UpdateMemorySchema>;
+export type SearchMemoryInput = z.infer<typeof SearchMemorySchema>;
+export type Memory = z.infer<typeof MemorySchema>;
+
+// ========== DTO Classes (NestJS + OpenAPI) ==========
+
+export class CreateMemoryDto extends createZodDto(CreateMemorySchema) {}
+export class UpdateMemoryDto extends createZodDto(UpdateMemorySchema) {}
+export class SearchMemoryDto extends createZodDto(SearchMemorySchema) {}
+export class MemoryDto extends createZodDto(MemorySchema) {}
+```
+
+### When to Use types.ts
+
+**ONLY for external/third-party API structures that are NOT validated:**
+
+```typescript
+// ✅ Correct: types.ts for external API response
+// External oEmbed API response structure (we don't validate this)
+export interface OembedData {
+  type: 'photo' | 'video' | 'link' | 'rich';
+  version: '1.0';
+  title?: string;
+  html?: string;
+}
+
+// ❌ Wrong: Request/Response types in types.ts
+// These should be in dto/*.schema.ts with Zod
+export interface CreateMemoryRequest { ... }  // Don't do this
+```
+
+### Controller Usage
+
+```typescript
+// memory.controller.ts
+import { ApiTags, ApiOperation, ApiOkResponse, ApiSecurity } from '@nestjs/swagger';
+import { CreateMemoryDto, MemoryDto } from './dto';
+
+@ApiTags('Memory')
+@ApiSecurity('apiKey')
+@Controller({ path: 'memories', version: '1' })
+@UseGuards(ApiKeyGuard)
+export class MemoryController {
+
+  @Post()
+  @ApiOperation({ summary: 'Create a memory' })
+  @ApiOkResponse({ type: MemoryDto })
+  async create(@Body() dto: CreateMemoryDto): Promise<MemoryDto> {
+    // dto is already validated by ZodValidationPipe
+    return this.memoryService.create(dto);
   }
-  // Use parsed.data
 }
 ```
 
+### Custom Errors
+
 ```typescript
-// ❌ Wrong: Class-based DTO has no runtime validation
+// memory.errors.ts
+import { HttpException, HttpStatus } from '@nestjs/common';
+
+export type MemoryErrorCode = 'MEMORY_NOT_FOUND' | 'MEMORY_LIMIT_EXCEEDED';
+
+export abstract class MemoryError extends HttpException {
+  constructor(
+    public readonly code: MemoryErrorCode,
+    message: string,
+    status: HttpStatus,
+    public readonly details?: Record<string, unknown>,
+  ) {
+    super({ success: false, error: { code, message, details } }, status);
+  }
+}
+
+export class MemoryNotFoundError extends MemoryError {
+  constructor(id: string) {
+    super('MEMORY_NOT_FOUND', `Memory not found: ${id}`, HttpStatus.NOT_FOUND, { id });
+  }
+}
+```
+
+### Anti-Patterns
+
+```typescript
+// ❌ Wrong: Duplicate type definitions
+// types.ts
+export interface CreateMemoryInput { content: string; }
+// schema.ts
+export const CreateMemorySchema = z.object({ content: z.string() });
+// Now you have TWO sources of truth!
+
+// ❌ Wrong: class-validator decorators
 export class CreateMemoryDto {
-  content!: string;
-  userId?: string;
-}
-```
-
-### Type File Organization (No Inline)
-
-Type definitions must be in separate `*.types.ts` files, inline definitions prohibited:
-
-```typescript
-// ✅ Correct: Types centralized in .types.ts
-// memory/memory.types.ts
-export interface MemoryContext {
-  userId: string;
-  apiKeyId: string | null;
-  tier: SubscriptionTier;
+  @IsString() content: string;  // No runtime validation without pipe
 }
 
-// memory/memory.service.ts
-import type { MemoryContext } from './memory.types';
-```
+// ❌ Wrong: Inline type in service
+// service.ts
+interface MemoryInput { ... }  // Should be in dto/schema.ts
 
-```typescript
-// ❌ Wrong: Inline type definition in business code
-// memory/memory.service.ts
-interface MemoryContext {  // Don't define here
-  userId: string;
-  // ...
-}
+// ❌ Wrong: Zod enum duplicated as TypeScript type
+// types.ts
+export type Theme = 'light' | 'dark';
+// schema.ts
+export const ThemeSchema = z.enum(['light', 'dark']);  // Duplication!
+
+// ✅ Correct: Single source
+export const ThemeSchema = z.enum(['light', 'dark']);
+export type Theme = z.infer<typeof ThemeSchema>;  // Derived, not duplicated
 ```
 
 ## Code Principles
@@ -453,4 +598,4 @@ apps/server/
 
 ---
 
-*Version: 1.2 | Updated: 2026-01*
+*Version: 1.3 | Updated: 2026-01*

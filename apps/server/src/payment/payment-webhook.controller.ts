@@ -1,6 +1,9 @@
 /**
  * Payment Webhook Controller
- * 处理 Creem 支付回调
+ *
+ * [INPUT]: Creem webhook events with HMAC signature
+ * [OUTPUT]: Acknowledgment response
+ * [POS]: Public webhook endpoint for payment provider callbacks
  */
 
 import {
@@ -14,6 +17,7 @@ import {
   BadRequestException,
   Req,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiExcludeEndpoint } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { Public } from '../auth';
 import { SkipResponseWrap } from '../common/decorators';
@@ -21,18 +25,18 @@ import { PaymentService } from './payment.service';
 import { CreemWebhookSchema, type CreemWebhookPayload } from './dto';
 import { SubscriptionTier } from '../../generated/prisma/client';
 
-// Creem 产品 ID 到套餐的映射（需要根据实际配置调整）
+// Creem product ID to tier mapping (adjust based on actual config)
 const PRODUCT_TO_TIER: Record<string, SubscriptionTier> = {
-  // 示例，实际值需要从 Creem 控制台获取
   'prod_hobby_monthly': SubscriptionTier.HOBBY,
   'prod_hobby_yearly': SubscriptionTier.HOBBY,
   'prod_enterprise_monthly': SubscriptionTier.ENTERPRISE,
   'prod_enterprise_yearly': SubscriptionTier.ENTERPRISE,
 };
 
-// 默认订阅周期（30天）
+// Default subscription period (30 days)
 const DEFAULT_SUBSCRIPTION_PERIOD_MS = 30 * 24 * 60 * 60 * 1000;
 
+@ApiTags('Webhooks')
 @Controller('webhooks/creem')
 @SkipResponseWrap()
 export class PaymentWebhookController {
@@ -41,11 +45,13 @@ export class PaymentWebhookController {
   constructor(private readonly paymentService: PaymentService) {}
 
   /**
-   * Creem Webhook 入口
+   * Creem Webhook handler
    */
   @Public()
   @Post()
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Handle Creem payment webhook' })
+  @ApiExcludeEndpoint()
   async handleWebhook(
     @Req() req: Request & { rawBody?: Buffer },
     @Body() payload: CreemWebhookPayload,
@@ -58,7 +64,7 @@ export class PaymentWebhookController {
       throw new BadRequestException(parsed.error.issues[0]?.message);
     }
 
-    // 验证 rawBody 存在
+    // Verify rawBody exists
     if (!req.rawBody) {
       this.logger.error('Raw body not available for signature verification');
       throw new BadRequestException(
@@ -66,14 +72,14 @@ export class PaymentWebhookController {
       );
     }
 
-    // 验证签名
+    // Verify signature
     const rawBody = req.rawBody.toString();
     if (!this.paymentService.verifyWebhookSignature(rawBody, signature)) {
       throw new BadRequestException('Invalid webhook signature');
     }
 
     const { eventType, object } = parsed.data;
-    // metadata.referenceId 用于关联用户
+    // metadata.referenceId is used to link to user
     const userId = object.metadata?.referenceId as string | undefined;
 
     if (!userId) {
@@ -112,7 +118,7 @@ export class PaymentWebhookController {
           break;
 
         case 'checkout.completed':
-          // 检查是否是配额购买（非订阅的一次性购买）
+          // Check if this is a quota purchase (non-subscription one-time purchase)
           if (object.order && !object.subscription) {
             const quotaAmount = this.parseQuotaAmount(object.product?.id || '');
             if (quotaAmount > 0) {
@@ -138,10 +144,10 @@ export class PaymentWebhookController {
   }
 
   /**
-   * 根据 productId 解析配额数量
+   * Parse quota amount from productId
    */
   private parseQuotaAmount(productId: string): number {
-    // 示例配额包配置（需要根据实际产品配置调整）
+    // Example quota pack config (adjust based on actual products)
     const quotaPacks: Record<string, number> = {
       'prod_quota_1000': 1000,
       'prod_quota_5000': 5000,

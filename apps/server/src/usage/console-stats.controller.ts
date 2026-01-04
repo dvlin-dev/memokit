@@ -1,9 +1,13 @@
 /**
  * Console Stats Controller
- * Dashboard statistics API for Console
+ *
+ * [INPUT]: Stats query requests
+ * [OUTPUT]: Dashboard statistics
+ * [POS]: Console API for usage statistics
  */
 
 import { Controller, Get, Query, VERSION_NEUTRAL } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiCookieAuth, ApiQuery } from '@nestjs/swagger';
 import { CurrentUser } from '../auth';
 import type { CurrentUserDto } from '../types';
 import { UsageService } from './usage.service';
@@ -13,24 +17,27 @@ import { parsePositiveInt } from '../common/utils';
 const MAX_DAYS = 90;
 const MAX_MONTHS = 24;
 
+@ApiTags('Console')
+@ApiCookieAuth()
 @Controller({ path: 'console/stats', version: VERSION_NEUTRAL })
 export class ConsoleStatsController {
   constructor(private readonly usageService: UsageService) {}
 
   /**
    * Get user statistics overview
-   * GET /api/console/stats/overview
    */
   @Get('overview')
+  @ApiOperation({ summary: 'Get statistics overview' })
   async getOverview(@CurrentUser() user: CurrentUserDto) {
     return this.usageService.getUserStats(user.id);
   }
 
   /**
    * Get daily usage for charts
-   * GET /api/console/stats/daily?days=30
    */
   @Get('daily')
+  @ApiOperation({ summary: 'Get daily usage data' })
+  @ApiQuery({ name: 'days', required: false, description: 'Number of days (default: 30, max: 90)' })
   async getDailyUsage(
     @CurrentUser() user: CurrentUserDto,
     @Query('days') days?: string,
@@ -41,9 +48,10 @@ export class ConsoleStatsController {
 
   /**
    * Get usage history (monthly)
-   * GET /api/console/stats/history?limit=12
    */
   @Get('history')
+  @ApiOperation({ summary: 'Get monthly usage history' })
+  @ApiQuery({ name: 'limit', required: false, description: 'Number of months (default: 12, max: 24)' })
   async getHistory(
     @CurrentUser() user: CurrentUserDto,
     @Query('limit') limit?: string,

@@ -1,6 +1,8 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { APP_PIPE, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ZodValidationPipe, ZodSerializerInterceptor } from 'nestjs-zod';
 import { json, urlencoded, type Request, type Response } from 'express';
 import { PrismaModule } from './prisma';
 import { RedisModule } from './redis';
@@ -24,6 +26,8 @@ import { EntityModule } from './entity';
 import { RelationModule } from './relation';
 import { GraphModule } from './graph';
 import { ExtractModule } from './extract';
+// OpenAPI
+import { OpenApiModule } from './openapi';
 
 @Module({
   imports: [
@@ -53,6 +57,20 @@ import { ExtractModule } from './extract';
     RelationModule,
     GraphModule,
     ExtractModule,
+    // OpenAPI
+    OpenApiModule,
+  ],
+  providers: [
+    // Global Zod validation pipe
+    {
+      provide: APP_PIPE,
+      useClass: ZodValidationPipe,
+    },
+    // Global Zod serializer interceptor
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ZodSerializerInterceptor,
+    },
   ],
 })
 export class AppModule implements NestModule {

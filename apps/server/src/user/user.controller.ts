@@ -1,6 +1,9 @@
 /**
  * User Controller
- * 用户相关 API
+ *
+ * [INPUT]: User profile and account management requests
+ * [OUTPUT]: User profile data or success status
+ * [POS]: Console API for user management
  */
 
 import {
@@ -12,76 +15,68 @@ import {
   Body,
   HttpCode,
   HttpStatus,
-  BadRequestException,
   VERSION_NEUTRAL,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiCookieAuth } from '@nestjs/swagger';
 import { CurrentUser } from '../auth';
 import type { CurrentUserDto } from '../types';
 import { UserService } from './user.service';
 import {
-  deleteAccountSchema,
-  updateProfileSchema,
-  changePasswordSchema,
+  UpdateProfileDto,
+  ChangePasswordDto,
+  DeleteAccountDto,
 } from './dto';
 
+@ApiTags('User')
+@ApiCookieAuth()
 @Controller({ path: 'user', version: VERSION_NEUTRAL })
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   /**
-   * 获取当前用户完整信息（包括配额）
+   * Get current user profile with quota info
    */
   @Get('me')
+  @ApiOperation({ summary: 'Get current user profile' })
   async getMe(@CurrentUser() user: CurrentUserDto) {
     return this.userService.getUserProfile(user.id);
   }
 
   /**
-   * 更新用户资料
+   * Update user profile
    */
   @Patch('me')
+  @ApiOperation({ summary: 'Update user profile' })
   async updateProfile(
     @CurrentUser() user: CurrentUserDto,
-    @Body() body: unknown,
+    @Body() dto: UpdateProfileDto,
   ) {
-    const parsed = updateProfileSchema.safeParse(body);
-    if (!parsed.success) {
-      throw new BadRequestException(parsed.error.issues[0]?.message);
-    }
-    return this.userService.updateProfile(user.id, parsed.data);
+    return this.userService.updateProfile(user.id, dto);
   }
 
   /**
-   * 修改密码
+   * Change password
    */
   @Post('me/password')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Change password' })
   async changePassword(
     @CurrentUser() user: CurrentUserDto,
-    @Body() body: unknown,
+    @Body() dto: ChangePasswordDto,
   ): Promise<void> {
-    const parsed = changePasswordSchema.safeParse(body);
-    if (!parsed.success) {
-      throw new BadRequestException(parsed.error.issues[0]?.message);
-    }
-    await this.userService.changePassword(user.id, parsed.data);
+    await this.userService.changePassword(user.id, dto);
   }
 
   /**
-   * 删除账户（软删除）
+   * Delete account (soft delete)
    */
   @Delete('account')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete user account' })
   async deleteAccount(
     @CurrentUser() user: CurrentUserDto,
-    @Body() body: unknown,
+    @Body() dto: DeleteAccountDto,
   ): Promise<void> {
-    // 验证请求体
-    const parsed = deleteAccountSchema.safeParse(body);
-    if (!parsed.success) {
-      throw new BadRequestException(parsed.error.issues[0]?.message);
-    }
-
-    await this.userService.deleteAccount(user.id, parsed.data);
+    await this.userService.deleteAccount(user.id, dto);
   }
 }

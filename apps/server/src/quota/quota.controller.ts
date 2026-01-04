@@ -1,25 +1,30 @@
 /**
- * [INPUT]: API 请求 (Session 认证)
- * [OUTPUT]: QuotaStatus
- * [POS]: 配额模块 API 路由
+ * Quota Controller
+ *
+ * [INPUT]: API requests (Session auth)
+ * [OUTPUT]: Quota status
+ * [POS]: Quota module API routes
  */
 
 import { Controller, Get, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiSecurity } from '@nestjs/swagger';
 import { QuotaService } from './quota.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { CurrentUser } from '../auth/decorators';
 import type { User } from '../../generated/prisma/client';
 
+@ApiTags('Quota')
+@ApiSecurity('apiKey')
 @Controller({ path: 'quota', version: '1' })
 @UseGuards(AuthGuard)
 export class QuotaController {
   constructor(private readonly quotaService: QuotaService) {}
 
   /**
-   * 获取当前配额状态
-   * GET /api/v1/quota
+   * Get current quota status
    */
   @Get()
+  @ApiOperation({ summary: 'Get quota status' })
   async getQuotaStatus(@CurrentUser() user: User) {
     return this.quotaService.getQuotaStatus(user.id);
   }

@@ -1,21 +1,28 @@
 /**
  * Payment Controller
- * 支付相关 API
+ *
+ * [INPUT]: User session for payment/subscription info
+ * [OUTPUT]: Subscription and quota status
+ * [POS]: Console API for payment management
  */
 
 import { Controller, Get, VERSION_NEUTRAL } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiCookieAuth } from '@nestjs/swagger';
 import { CurrentUser } from '../auth';
 import { PrismaService } from '../prisma';
 import type { CurrentUserDto } from '../types';
 
+@ApiTags('Payment')
+@ApiCookieAuth()
 @Controller({ path: 'payment', version: VERSION_NEUTRAL })
 export class PaymentController {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * 获取当前用户的订阅状态
+   * Get current user subscription status
    */
   @Get('subscription')
+  @ApiOperation({ summary: 'Get subscription status' })
   async getSubscription(@CurrentUser() user: CurrentUserDto) {
     const subscription = await this.prisma.subscription.findUnique({
       where: { userId: user.id },
@@ -30,9 +37,10 @@ export class PaymentController {
   }
 
   /**
-   * 获取配额状态
+   * Get quota status
    */
   @Get('quota')
+  @ApiOperation({ summary: 'Get quota status' })
   async getQuota(@CurrentUser() user: CurrentUserDto) {
     const quota = await this.prisma.quota.findUnique({
       where: { userId: user.id },

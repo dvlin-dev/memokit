@@ -1,13 +1,17 @@
 /**
- * Payment DTOs
- * 支付相关的请求和响应数据结构
+ * Payment module Zod schemas
+ *
+ * [DEFINES]: CreemWebhookSchema, SubscriptionActivatedParams, QuotaPurchaseParams
+ * [USED_BY]: payment.controller.ts, payment-webhook.controller.ts, payment.service.ts
  */
-
 import { z } from 'zod';
+import type { SubscriptionTier } from '../../../generated/prisma/client';
+
+// ========== Webhook Schemas ==========
 
 /**
- * Creem Webhook 负载 Schema
- * 根据 Creem 官方文档: https://docs.creem.io/code/webhooks
+ * Creem Webhook payload schema
+ * Based on Creem docs: https://docs.creem.io/code/webhooks
  */
 export const CreemWebhookSchema = z.object({
   id: z.string().min(1),
@@ -26,7 +30,7 @@ export const CreemWebhookSchema = z.object({
       })
       .passthrough()
       .optional(),
-    // checkout.completed 事件中的 subscription 是嵌套对象
+    // checkout.completed event has subscription as nested object
     subscription: z
       .union([z.string(), z.object({ id: z.string().min(1) }).passthrough()])
       .optional(),
@@ -44,36 +48,28 @@ export const CreemWebhookSchema = z.object({
   }),
 });
 
-/** Creem Webhook 负载类型 */
+// ========== Inferred Types ==========
+
 export type CreemWebhookPayload = z.infer<typeof CreemWebhookSchema>;
 
-/**
- * 订阅激活参数
- */
-export interface SubscriptionActiveParams {
-  subscriptionId: string;
-  customerId: string;
-  productId: string;
+// ========== Internal Service Types ==========
+
+/** Subscription activation params (internal use) */
+export interface SubscriptionActivatedParams {
   userId: string;
-  periodEnd: Date;
+  creemCustomerId: string;
+  creemSubscriptionId: string;
+  tier: SubscriptionTier;
+  currentPeriodStart: Date;
+  currentPeriodEnd: Date;
 }
 
-/**
- * 订阅取消参数
- */
-export interface SubscriptionCanceledParams {
-  subscriptionId: string;
-  userId: string;
-}
-
-/**
- * 配额购买完成参数
- */
+/** Quota purchase params (internal use) */
 export interface QuotaPurchaseParams {
-  checkoutId: string;
-  orderId: string;
   userId: string;
-  amount: number; // 购买的配额数量
-  price: number; // 金额（分）
-  currency: string;
+  /** Quota amount purchased */
+  amount: number;
+  creemOrderId: string;
+  /** Price in cents */
+  price: number;
 }

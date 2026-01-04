@@ -1,2 +1,4 @@
-export * from './create-api-key.dto';
-export * from './update-api-key.dto';
+/**
+ * API Key DTO exports
+ */
+export * from './api-key.schema';

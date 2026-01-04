@@ -1,33 +1,37 @@
 /**
  * Admin Dashboard Controller
- * 管理后台仪表盘 API
+ *
+ * [INPUT]: Dashboard data requests
+ * [OUTPUT]: Statistics and chart data
+ * [POS]: Admin API for dashboard
  */
 
 import { Controller, Get, VERSION_NEUTRAL } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiCookieAuth } from '@nestjs/swagger';
 import { RequireAdmin } from '../auth';
 import { AdminService } from './admin.service';
 
 @ApiTags('Admin')
+@ApiCookieAuth()
 @Controller({ path: 'admin/dashboard', version: VERSION_NEUTRAL })
 @RequireAdmin()
 export class AdminDashboardController {
   constructor(private readonly adminService: AdminService) {}
 
   /**
-   * 获取仪表盘统计数据
-   * GET /api/admin/dashboard
+   * Get dashboard statistics
    */
   @Get()
+  @ApiOperation({ summary: 'Get dashboard statistics' })
   async getDashboardStats() {
     return this.adminService.getDashboardStats();
   }
 
   /**
-   * 获取图表数据（近 7 天）
-   * GET /api/admin/dashboard/charts
+   * Get chart data (last 7 days)
    */
   @Get('charts')
+  @ApiOperation({ summary: 'Get chart data' })
   async getChartData() {
     return this.adminService.getChartData();
   }

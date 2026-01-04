@@ -1,6 +1,9 @@
 /**
  * Payment Service
- * 支付相关业务逻辑（Creem 集成）
+ *
+ * [INPUT]: Payment/subscription webhook events
+ * [OUTPUT]: User subscription and quota updates
+ * [POS]: Core payment handling with Creem integration
  */
 
 import { Injectable, Logger } from '@nestjs/common';
@@ -12,7 +15,7 @@ import {
   SubscriptionStatus,
 } from '../../generated/prisma/client';
 import { TIER_MONTHLY_QUOTA, addOneMonth } from './payment.constants';
-import type { SubscriptionActivatedParams, QuotaPurchaseParams } from './payment.types';
+import type { SubscriptionActivatedParams, QuotaPurchaseParams } from './dto';
 
 @Injectable()
 export class PaymentService {

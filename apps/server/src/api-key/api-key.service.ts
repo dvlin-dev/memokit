@@ -1,6 +1,9 @@
 /**
  * API Key Service
- * 负责 API Key 的 CRUD 操作和验证
+ *
+ * [INPUT]: API Key CRUD requests
+ * [OUTPUT]: API Key data and validation results
+ * [POS]: Core API Key management and validation service
  */
 
 import {
@@ -12,14 +15,14 @@ import {
 import { createHash, randomBytes } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
-import type { CreateApiKeyDto } from './dto/create-api-key.dto';
-import type { UpdateApiKeyDto } from './dto/update-api-key.dto';
 import type { SubscriptionTier } from '../subscription/subscription.constants';
 import type {
+  CreateApiKeyInput,
+  UpdateApiKeyInput,
   ApiKeyValidationResult,
   ApiKeyCreateResult,
   ApiKeyListItem,
-} from './api-key.types';
+} from './dto';
 import {
   API_KEY_PREFIX,
   API_KEY_LENGTH,
@@ -65,7 +68,7 @@ export class ApiKeyService {
    * 创建新的 API Key
    * @returns 包含完整密钥的结果（仅创建时返回完整密钥）
    */
-  async create(userId: string, dto: CreateApiKeyDto): Promise<ApiKeyCreateResult> {
+  async create(userId: string, dto: CreateApiKeyInput): Promise<ApiKeyCreateResult> {
     const fullKey = this.generateKey();
     const keyHash = this.hashKey(fullKey);
     const keyPrefix = this.getKeyPrefix(fullKey);
@@ -123,7 +126,7 @@ export class ApiKeyService {
   async update(
     userId: string,
     keyId: string,
-    dto: UpdateApiKeyDto,
+    dto: UpdateApiKeyInput,
   ): Promise<ApiKeyListItem> {
     const existing = await this.prisma.apiKey.findFirst({
       where: { id: keyId, userId },

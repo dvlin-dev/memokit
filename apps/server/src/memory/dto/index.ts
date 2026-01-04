@@ -1,2 +1,4 @@
-export * from './create-memory.dto';
-export * from './search-memory.dto';
+/**
+ * Memory DTO exports
+ */
+export * from './memory.schema';

@@ -1,6 +1,9 @@
 /**
  * Webhook Controller
- * Webhook CRUD API
+ *
+ * [INPUT]: CreateWebhookDto, UpdateWebhookDto
+ * [OUTPUT]: Webhook responses
+ * [POS]: Console API for Webhook management
  */
 
 import {
@@ -14,48 +17,81 @@ import {
   Query,
   HttpCode,
   HttpStatus,
-  BadRequestException,
   VERSION_NEUTRAL,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiParam,
+  ApiCookieAuth,
+} from '@nestjs/swagger';
 import { CurrentUser } from '../auth';
 import type { CurrentUserDto } from '../types';
 import { WebhookService } from './webhook.service';
-import { createWebhookSchema, updateWebhookSchema } from './dto';
+import {
+  CreateWebhookDto,
+  UpdateWebhookDto,
+  ListDeliveriesQueryDto,
+} from './dto';
 
+@ApiTags('Webhook')
+@ApiCookieAuth()
 @Controller({ path: 'console/webhooks', version: VERSION_NEUTRAL })
 export class WebhookController {
   constructor(private readonly webhookService: WebhookService) {}
 
   /**
-   * 创建 Webhook
-   * POST /api/console/webhooks
+   * Create a webhook
    */
   @Post()
+  @ApiOperation({ summary: 'Create a webhook' })
   async create(
     @CurrentUser() user: CurrentUserDto,
-    @Body() body: unknown,
+    @Body() dto: CreateWebhookDto,
   ) {
-    const parsed = createWebhookSchema.safeParse(body);
-    if (!parsed.success) {
-      throw new BadRequestException(parsed.error.issues[0]?.message);
-    }
-    return this.webhookService.create(user.id, parsed.data);
+    return this.webhookService.create(user.id, dto);
   }
 
   /**
-   * 获取所有 Webhooks
-   * GET /api/console/webhooks
+   * List all webhooks
    */
   @Get()
+  @ApiOperation({ summary: 'List all webhooks' })
   async findAll(@CurrentUser() user: CurrentUserDto) {
     return this.webhookService.findAllByUser(user.id);
   }
 
   /**
-   * 获取单个 Webhook
-   * GET /api/console/webhooks/:id
+   * Get all webhook deliveries
+   */
+  @Get('deliveries')
+  @ApiOperation({ summary: 'Get all webhook deliveries' })
+  async getAllDeliveries(
+    @CurrentUser() user: CurrentUserDto,
+    @Query() query: ListDeliveriesQueryDto,
+  ) {
+    const result = await this.webhookService.getAllDeliveries(user.id, {
+      webhookId: query.webhookId,
+      limit: query.limit,
+      offset: query.offset,
+    });
+
+    return {
+      items: result.deliveries,
+      pagination: {
+        total: result.total,
+        limit: query.limit,
+        offset: query.offset,
+      },
+    };
+  }
+
+  /**
+   * Get a single webhook
    */
   @Get(':id')
+  @ApiOperation({ summary: 'Get a webhook by ID' })
+  @ApiParam({ name: 'id', description: 'Webhook ID' })
   async findOne(
     @CurrentUser() user: CurrentUserDto,
     @Param('id') id: string,
@@ -64,28 +100,26 @@ export class WebhookController {
   }
 
   /**
-   * 更新 Webhook
-   * PATCH /api/console/webhooks/:id
+   * Update a webhook
    */
   @Patch(':id')
+  @ApiOperation({ summary: 'Update a webhook' })
+  @ApiParam({ name: 'id', description: 'Webhook ID' })
   async update(
     @CurrentUser() user: CurrentUserDto,
     @Param('id') id: string,
-    @Body() body: unknown,
+    @Body() dto: UpdateWebhookDto,
   ) {
-    const parsed = updateWebhookSchema.safeParse(body);
-    if (!parsed.success) {
-      throw new BadRequestException(parsed.error.issues[0]?.message);
-    }
-    return this.webhookService.update(id, user.id, parsed.data);
+    return this.webhookService.update(id, user.id, dto);
   }
 
   /**
-   * 删除 Webhook
-   * DELETE /api/console/webhooks/:id
+   * Delete a webhook
    */
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a webhook' })
+  @ApiParam({ name: 'id', description: 'Webhook ID' })
   async remove(
     @CurrentUser() user: CurrentUserDto,
     @Param('id') id: string,
@@ -94,10 +128,11 @@ export class WebhookController {
   }
 
   /**
-   * 重新生成 Secret
-   * POST /api/console/webhooks/:id/regenerate-secret
+   * Regenerate webhook secret
    */
   @Post(':id/regenerate-secret')
+  @ApiOperation({ summary: 'Regenerate webhook secret' })
+  @ApiParam({ name: 'id', description: 'Webhook ID' })
   async regenerateSecret(
     @CurrentUser() user: CurrentUserDto,
     @Param('id') id: string,
@@ -106,60 +141,27 @@ export class WebhookController {
   }
 
   /**
-   * 获取所有 Webhook 投递日志
-   * GET /api/console/webhooks/deliveries
-   */
-  @Get('deliveries')
-  async getAllDeliveries(
-    @CurrentUser() user: CurrentUserDto,
-    @Query('webhookId') webhookId?: string,
-    @Query('limit') limit?: string,
-    @Query('offset') offset?: string,
-  ) {
-    const parsedLimit = limit ? parseInt(limit, 10) : 20;
-    const parsedOffset = offset ? parseInt(offset, 10) : 0;
-
-    const result = await this.webhookService.getAllDeliveries(user.id, {
-      webhookId,
-      limit: parsedLimit,
-      offset: parsedOffset,
-    });
-
-    return {
-      items: result.deliveries,
-      pagination: {
-        total: result.total,
-        limit: parsedLimit,
-        offset: parsedOffset,
-      },
-    };
-  }
-
-  /**
-   * 获取单个 Webhook 的投递日志
-   * GET /api/console/webhooks/:id/deliveries
+   * Get webhook deliveries
    */
   @Get(':id/deliveries')
+  @ApiOperation({ summary: 'Get deliveries for a webhook' })
+  @ApiParam({ name: 'id', description: 'Webhook ID' })
   async getDeliveries(
     @CurrentUser() user: CurrentUserDto,
     @Param('id') id: string,
-    @Query('limit') limit?: string,
-    @Query('offset') offset?: string,
+    @Query() query: ListDeliveriesQueryDto,
   ) {
-    const parsedLimit = limit ? parseInt(limit, 10) : 20;
-    const parsedOffset = offset ? parseInt(offset, 10) : 0;
-
     const result = await this.webhookService.getDeliveries(id, user.id, {
-      limit: parsedLimit,
-      offset: parsedOffset,
+      limit: query.limit,
+      offset: query.offset,
     });
 
     return {
       items: result.deliveries,
       pagination: {
         total: result.total,
-        limit: parsedLimit,
-        offset: parsedOffset,
+        limit: query.limit,
+        offset: query.offset,
       },
     };
   }

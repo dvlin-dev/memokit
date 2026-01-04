@@ -1,5 +1,8 @@
 /**
  * [POS]: Entity API Controller
+ *
+ * [INPUT]: CreateEntityDto, ListEntityQueryDto
+ * [OUTPUT]: Entity responses
  */
 
 import {
@@ -13,13 +16,25 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiSecurity,
+  ApiParam,
+} from '@nestjs/swagger';
 import { EntityService } from './entity.service';
-import { CreateEntityDto } from './dto';
+import {
+  CreateEntityDto,
+  CreateEntityBatchDto,
+  ListEntityQueryDto,
+} from './dto';
 import { ApiKeyGuard } from '../api-key/api-key.guard';
 import { QuotaGuard } from '../quota/quota.guard';
 import { ApiKeyDataIsolationInterceptor } from '../common/interceptors/api-key-isolation.interceptor';
 import { ApiKeyId } from '../common/decorators/api-key.decorator';
 
+@ApiTags('Entity')
+@ApiSecurity('apiKey')
 @Controller({ path: 'entities', version: '1' })
 @UseGuards(ApiKeyGuard, QuotaGuard)
 @UseInterceptors(ApiKeyDataIsolationInterceptor)
@@ -27,10 +42,10 @@ export class EntityController {
   constructor(private readonly entityService: EntityService) {}
 
   /**
-   * 创建实体
-   * POST /api/v1/entities
+   * Create an entity
    */
   @Post()
+  @ApiOperation({ summary: 'Create an entity' })
   async create(
     @ApiKeyId() apiKeyId: string,
     @Body() dto: CreateEntityDto,
@@ -39,41 +54,39 @@ export class EntityController {
   }
 
   /**
-   * 批量创建实体
-   * POST /api/v1/entities/batch
+   * Batch create entities
    */
   @Post('batch')
+  @ApiOperation({ summary: 'Batch create entities' })
   async createMany(
     @ApiKeyId() apiKeyId: string,
-    @Body() dtos: CreateEntityDto[],
+    @Body() dto: CreateEntityBatchDto,
   ) {
-    return this.entityService.createMany(apiKeyId, dtos);
+    return this.entityService.createMany(apiKeyId, dto);
   }
 
   /**
-   * 列出实体
-   * GET /api/v1/entities?userId=xxx
+   * List entities for a user
    */
   @Get()
+  @ApiOperation({ summary: 'List entities for a user' })
   async list(
     @ApiKeyId() apiKeyId: string,
-    @Query('userId') userId: string,
-    @Query('type') type?: string,
-    @Query('limit') limit?: number,
-    @Query('offset') offset?: number,
+    @Query() query: ListEntityQueryDto,
   ) {
-    return this.entityService.list(apiKeyId, userId, {
-      type,
-      limit,
-      offset,
+    return this.entityService.list(apiKeyId, query.userId, {
+      type: query.type,
+      limit: query.limit,
+      offset: query.offset,
     });
   }
 
   /**
-   * 获取单个实体
-   * GET /api/v1/entities/:id
+   * Get an entity by ID
    */
   @Get(':id')
+  @ApiOperation({ summary: 'Get an entity by ID' })
+  @ApiParam({ name: 'id', description: 'Entity ID' })
   async getById(
     @ApiKeyId() apiKeyId: string,
     @Param('id') id: string,
@@ -82,10 +95,11 @@ export class EntityController {
   }
 
   /**
-   * 删除实体
-   * DELETE /api/v1/entities/:id
+   * Delete an entity
    */
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete an entity' })
+  @ApiParam({ name: 'id', description: 'Entity ID' })
   async delete(
     @ApiKeyId() apiKeyId: string,
     @Param('id') id: string,

@@ -1,6 +1,9 @@
 /**
  * Admin Auth Controller
- * 管理员认证 API
+ *
+ * [INPUT]: Admin login credentials
+ * [OUTPUT]: Auth token and user info
+ * [POS]: Admin API for authentication
  */
 
 import {
@@ -17,11 +20,7 @@ import type { Request } from 'express';
 import { PrismaService } from '../prisma';
 import { Public } from '../auth';
 import * as bcrypt from 'bcryptjs';
-
-interface AdminLoginDto {
-  email: string;
-  password: string;
-}
+import { AdminLoginDto } from './dto';
 
 @ApiTags('Admin')
 @Controller({ path: 'admin', version: VERSION_NEUTRAL })
@@ -29,20 +28,15 @@ export class AdminAuthController {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * 管理员登录
-   * POST /api/admin/login
+   * Admin login
    */
   @Public()
-  @ApiOperation({ summary: '管理员登录' })
   @Post('login')
+  @ApiOperation({ summary: 'Admin login' })
   async login(@Body() dto: AdminLoginDto) {
     const { email, password } = dto;
 
-    if (!email || !password) {
-      throw new UnauthorizedException('Email and password are required');
-    }
-
-    // 查找用户和账户信息
+    // Find user and account info
     const user = await this.prisma.user.findUnique({
       where: { email },
       include: {
@@ -56,17 +50,17 @@ export class AdminAuthController {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // 检查是否是管理员
+    // Check if admin
     if (!user.isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
-    // 检查用户是否已删除
+    // Check if deleted
     if (user.deletedAt) {
       throw new UnauthorizedException('Account has been deleted');
     }
 
-    // 验证密码
+    // Verify password
     const account = user.accounts[0];
     if (!account.password) {
       throw new UnauthorizedException('Invalid credentials');
@@ -77,7 +71,7 @@ export class AdminAuthController {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // 创建 session token
+    // Create session token
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
     const token = this.generateToken();
 
@@ -104,10 +98,10 @@ export class AdminAuthController {
   }
 
   /**
-   * 管理员登出
-   * POST /api/admin/logout
+   * Admin logout
    */
   @Post('logout')
+  @ApiOperation({ summary: 'Admin logout' })
   async logout(@Req() req: Request) {
     const authHeader = req.headers.authorization;
     if (authHeader?.startsWith('Bearer ')) {

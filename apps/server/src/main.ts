@@ -1,10 +1,16 @@
 import { NestFactory, Reflector } from '@nestjs/core';
-import { Logger, VersioningType } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Logger, VersioningType, type INestApplication } from '@nestjs/common';
+import { SwaggerModule } from '@nestjs/swagger';
+import { cleanupOpenApiDoc } from 'nestjs-zod';
 import { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import {
+  OpenApiService,
+  SCALAR_CONFIG,
+  createScalarMiddleware,
+} from './openapi';
 
 /**
  * 检查 origin 是否匹配模式
@@ -105,32 +111,48 @@ async function bootstrap() {
   // 全局异常过滤器 - 统一错误格式
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  // Swagger API 文档配置
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Memory API')
-    .setDescription('Memai - Memory as a Service API')
-    .setVersion('1.0')
-    .addBearerAuth(
-      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-      'bearer',
-    )
-    .addCookieAuth('better-auth.session_token', {
-      type: 'apiKey',
-      in: 'cookie',
-    })
-    .addTag('Health', '健康检查')
-    .addTag('Admin', '管理员功能')
-    .addTag('Payment', '支付相关')
-    .build();
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api-docs', app, document);
+  // OpenAPI + Scalar API Reference
+  setupOpenApi(app, logger);
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
 
-  logger.log(`🚀 Application running on port ${port}`);
-  logger.log(`📊 Health check: http://localhost:${port}/health`);
-  logger.log(`📚 Swagger UI: http://localhost:${port}/api-docs`);
+  logger.log(`Application running on port ${port}`);
+  logger.log(`Health check: http://localhost:${port}/health`);
+  logger.log(`API Reference: http://localhost:${port}${SCALAR_CONFIG.REFERENCE_PATH}`);
+}
+
+/**
+ * Setup OpenAPI documentation with Scalar UI
+ * Error boundary: failures don't prevent app startup
+ */
+function setupOpenApi(app: INestApplication, logger: Logger): void {
+  try {
+    const openApiService = app.get(OpenApiService);
+    const config = openApiService.buildConfig();
+    const document = SwaggerModule.createDocument(app, config);
+    const cleanedDoc = cleanupOpenApiDoc(document);
+
+    // Serve OpenAPI JSON
+    app.use(SCALAR_CONFIG.OPENAPI_JSON_PATH, (_req: unknown, res: { json: (doc: unknown) => void }) => {
+      res.json(cleanedDoc);
+    });
+
+    // Serve Scalar API Reference
+    app.use(
+      SCALAR_CONFIG.REFERENCE_PATH,
+      createScalarMiddleware({
+        openApiJsonUrl: SCALAR_CONFIG.OPENAPI_JSON_PATH,
+        proxyUrl: process.env.SCALAR_PROXY_URL,
+      }),
+    );
+
+    logger.log(`API Reference available at ${SCALAR_CONFIG.REFERENCE_PATH}`);
+    logger.log(`OpenAPI JSON available at ${SCALAR_CONFIG.OPENAPI_JSON_PATH}`);
+  } catch (error) {
+    // Error boundary: don't prevent app startup
+    logger.error('OpenAPI setup failed:', error);
+  }
 }
 
 void bootstrap();

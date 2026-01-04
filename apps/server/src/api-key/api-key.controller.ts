@@ -1,6 +1,9 @@
 /**
  * API Key Controller
- * API Key 管理接口（控制台使用，Session 认证）
+ *
+ * [INPUT]: CreateApiKeyDto, UpdateApiKeyDto
+ * [OUTPUT]: ApiKey responses
+ * [POS]: Console API for API Key management (Session auth)
  */
 
 import {
@@ -13,81 +16,80 @@ import {
   Param,
   HttpCode,
   HttpStatus,
-  BadRequestException,
   VERSION_NEUTRAL,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiParam,
+  ApiCookieAuth,
+} from '@nestjs/swagger';
 import { CurrentUser } from '../auth';
 import type { CurrentUserDto } from '../types';
 import { ApiKeyService } from './api-key.service';
-import {
-  createApiKeySchema,
-  updateApiKeySchema,
-  type CreateApiKeyDto,
-  type UpdateApiKeyDto,
-} from './dto';
+import { CreateApiKeyDto, UpdateApiKeyDto } from './dto';
 
+@ApiTags('ApiKey')
+@ApiCookieAuth()
 @Controller({ path: 'console/api-keys', version: VERSION_NEUTRAL })
 export class ApiKeyController {
   constructor(private readonly apiKeyService: ApiKeyService) {}
 
   /**
    * Create a new API key
-   * POST /api/console/api-keys
    */
   @Post()
-  async create(@CurrentUser() user: CurrentUserDto, @Body() body: unknown) {
-    const parsed = createApiKeySchema.safeParse(body);
-    if (!parsed.success) {
-      throw new BadRequestException(parsed.error.issues[0]?.message);
-    }
-
-    const dto: CreateApiKeyDto = parsed.data;
+  @ApiOperation({ summary: 'Create a new API key' })
+  async create(
+    @CurrentUser() user: CurrentUserDto,
+    @Body() dto: CreateApiKeyDto,
+  ) {
     return this.apiKeyService.create(user.id, dto);
   }
 
   /**
    * List all API keys for current user
-   * GET /api/console/api-keys
    */
   @Get()
+  @ApiOperation({ summary: 'List all API keys' })
   async findAll(@CurrentUser() user: CurrentUserDto) {
     return this.apiKeyService.findAllByUser(user.id);
   }
 
   /**
    * Get a single API key
-   * GET /api/console/api-keys/:id
    */
   @Get(':id')
-  async findOne(@CurrentUser() user: CurrentUserDto, @Param('id') id: string) {
+  @ApiOperation({ summary: 'Get an API key by ID' })
+  @ApiParam({ name: 'id', description: 'API Key ID' })
+  async findOne(
+    @CurrentUser() user: CurrentUserDto,
+    @Param('id') id: string,
+  ) {
     return this.apiKeyService.findOne(user.id, id);
   }
 
   /**
    * Update an API key
-   * PATCH /api/console/api-keys/:id
    */
   @Patch(':id')
+  @ApiOperation({ summary: 'Update an API key' })
+  @ApiParam({ name: 'id', description: 'API Key ID' })
   async update(
     @CurrentUser() user: CurrentUserDto,
     @Param('id') id: string,
-    @Body() body: unknown,
+    @Body() dto: UpdateApiKeyDto,
   ) {
-    const parsed = updateApiKeySchema.safeParse(body);
-    if (!parsed.success) {
-      throw new BadRequestException(parsed.error.issues[0]?.message);
-    }
-
-    const dto: UpdateApiKeyDto = parsed.data;
     return this.apiKeyService.update(user.id, id, dto);
   }
 
   /**
    * Delete an API key
-   * DELETE /api/console/api-keys/:id
    */
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete an API key' })
+  @ApiParam({ name: 'id', description: 'API Key ID' })
   async delete(
     @CurrentUser() user: CurrentUserDto,
     @Param('id') id: string,

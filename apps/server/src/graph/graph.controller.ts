@@ -1,5 +1,9 @@
 /**
- * [POS]: Graph API Controller
+ * Graph API Controller
+ *
+ * [INPUT]: Graph traversal and query requests
+ * [OUTPUT]: Graph nodes and relationships
+ * [POS]: Public API for knowledge graph operations
  */
 
 import {
@@ -12,12 +16,21 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { GraphService, TraversalOptions } from './graph.service';
+import { ApiTags, ApiOperation, ApiSecurity, ApiParam } from '@nestjs/swagger';
+import { GraphService } from './graph.service';
 import { ApiKeyGuard } from '../api-key/api-key.guard';
 import { QuotaGuard } from '../quota/quota.guard';
 import { ApiKeyDataIsolationInterceptor } from '../common/interceptors/api-key-isolation.interceptor';
 import { ApiKeyId } from '../common/decorators/api-key.decorator';
+import {
+  GetGraphQueryDto,
+  PathQueryDto,
+  NeighborsQueryDto,
+  TraverseDto,
+} from './dto';
 
+@ApiTags('Graph')
+@ApiSecurity('apiKey')
 @Controller({ path: 'graph', version: '1' })
 @UseGuards(ApiKeyGuard, QuotaGuard)
 @UseInterceptors(ApiKeyDataIsolationInterceptor)
@@ -25,67 +38,56 @@ export class GraphController {
   constructor(private readonly graphService: GraphService) {}
 
   /**
-   * 获取用户的完整知识图谱
-   * GET /api/v1/graph?userId=xxx
+   * Get user's full knowledge graph
    */
   @Get()
+  @ApiOperation({ summary: 'Get full knowledge graph' })
   async getFullGraph(
     @ApiKeyId() apiKeyId: string,
-    @Query('userId') userId: string,
-    @Query('limit') limit?: number,
+    @Query() query: GetGraphQueryDto,
   ) {
-    return this.graphService.getFullGraph(apiKeyId, userId, { limit });
+    return this.graphService.getFullGraph(apiKeyId, query.userId, {
+      limit: query.limit,
+    });
   }
 
   /**
-   * 从指定实体遍历图谱
-   * POST /api/v1/graph/traverse
+   * Traverse graph from entity
    */
   @Post('traverse')
-  async traverse(
-    @ApiKeyId() apiKeyId: string,
-    @Body() body: { entityId: string; options?: TraversalOptions },
-  ) {
-    return this.graphService.traverse(
-      apiKeyId,
-      body.entityId,
-      body.options ?? {},
-    );
+  @ApiOperation({ summary: 'Traverse graph from entity' })
+  async traverse(@ApiKeyId() apiKeyId: string, @Body() dto: TraverseDto) {
+    return this.graphService.traverse(apiKeyId, dto.entityId, dto.options ?? {});
   }
 
   /**
-   * 查找两个实体之间的路径
-   * GET /api/v1/graph/path?sourceId=xxx&targetId=xxx
+   * Find path between two entities
    */
   @Get('path')
-  async findPath(
-    @ApiKeyId() apiKeyId: string,
-    @Query('sourceId') sourceId: string,
-    @Query('targetId') targetId: string,
-    @Query('maxDepth') maxDepth?: number,
-  ) {
+  @ApiOperation({ summary: 'Find path between entities' })
+  async findPath(@ApiKeyId() apiKeyId: string, @Query() query: PathQueryDto) {
     return this.graphService.findPath(
       apiKeyId,
-      sourceId,
-      targetId,
-      maxDepth ?? 5,
+      query.sourceId,
+      query.targetId,
+      query.maxDepth,
     );
   }
 
   /**
-   * 获取实体的邻居
-   * GET /api/v1/graph/neighbors/:entityId
+   * Get entity neighbors
    */
   @Get('neighbors/:entityId')
+  @ApiOperation({ summary: 'Get entity neighbors' })
+  @ApiParam({ name: 'entityId', description: 'Entity ID' })
   async getNeighbors(
     @ApiKeyId() apiKeyId: string,
     @Param('entityId') entityId: string,
-    @Query('direction') direction?: 'in' | 'out' | 'both',
-    @Query('relationTypes') relationTypes?: string,
+    @Query() query: NeighborsQueryDto,
   ) {
     return this.graphService.getNeighbors(apiKeyId, entityId, {
-      direction,
-      relationTypes: relationTypes ? relationTypes.split(',') : undefined,
+      direction: query.direction,
+      relationTypes: query.relationTypes,
     });
   }
 }

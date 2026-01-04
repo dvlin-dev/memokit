@@ -1,5 +1,8 @@
 /**
- * API Key 模块装饰器
+ * API Key decorators
+ *
+ * [PROVIDES]: UseApiKey, CurrentApiKey
+ * [USED_BY]: Controllers needing API Key authentication
  */
 
 import {
@@ -8,7 +11,7 @@ import {
   ExecutionContext,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import type { ApiKeyValidationResult } from './api-key.types';
+import type { ApiKeyValidationResult } from './dto';
 
 /** 元数据 key：标记路由需要 API Key 认证 */
 export const USE_API_KEY = 'useApiKey';

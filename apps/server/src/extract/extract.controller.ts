@@ -1,5 +1,9 @@
 /**
- * [POS]: Extract API Controller
+ * Extract API Controller
+ *
+ * [INPUT]: Text for entity/relation extraction
+ * [OUTPUT]: Extracted entities and relations
+ * [POS]: Public API for knowledge extraction
  */
 
 import {
@@ -9,36 +13,16 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ExtractService, ExtractOptions } from './extract.service';
+import { ApiTags, ApiOperation, ApiSecurity } from '@nestjs/swagger';
+import { ExtractService } from './extract.service';
 import { ApiKeyGuard } from '../api-key/api-key.guard';
 import { QuotaGuard } from '../quota/quota.guard';
 import { ApiKeyDataIsolationInterceptor } from '../common/interceptors/api-key-isolation.interceptor';
 import { ApiKeyId } from '../common/decorators/api-key.decorator';
+import { ExtractDto, ExtractBatchDto, PreviewDto } from './dto';
 
-export class ExtractDto {
-  text!: string;
-  userId!: string;
-  entityTypes?: string[];
-  relationTypes?: string[];
-  minConfidence?: number;
-  saveToGraph?: boolean;
-}
-
-export class ExtractBatchDto {
-  texts!: string[];
-  userId!: string;
-  entityTypes?: string[];
-  relationTypes?: string[];
-  minConfidence?: number;
-  saveToGraph?: boolean;
-}
-
-export class PreviewDto {
-  text!: string;
-  entityTypes?: string[];
-  relationTypes?: string[];
-}
-
+@ApiTags('Extract')
+@ApiSecurity('apiKey')
 @Controller({ path: 'extract', version: '1' })
 @UseGuards(ApiKeyGuard, QuotaGuard)
 @UseInterceptors(ApiKeyDataIsolationInterceptor)
@@ -46,49 +30,41 @@ export class ExtractController {
   constructor(private readonly extractService: ExtractService) {}
 
   /**
-   * 从文本提取实体和关系
-   * POST /api/v1/extract
+   * Extract entities and relations from text
    */
   @Post()
-  async extract(
-    @ApiKeyId() apiKeyId: string,
-    @Body() dto: ExtractDto,
-  ) {
+  @ApiOperation({ summary: 'Extract entities and relations from text' })
+  async extract(@ApiKeyId() apiKeyId: string, @Body() dto: ExtractDto) {
     return this.extractService.extractFromText(apiKeyId, dto.text, {
       userId: dto.userId,
       entityTypes: dto.entityTypes,
       relationTypes: dto.relationTypes,
       minConfidence: dto.minConfidence,
-      saveToGraph: dto.saveToGraph ?? true,
+      saveToGraph: dto.saveToGraph,
     });
   }
 
   /**
-   * 批量提取
-   * POST /api/v1/extract/batch
+   * Batch extract from multiple texts
    */
   @Post('batch')
-  async extractBatch(
-    @ApiKeyId() apiKeyId: string,
-    @Body() dto: ExtractBatchDto,
-  ) {
+  @ApiOperation({ summary: 'Batch extract from multiple texts' })
+  async extractBatch(@ApiKeyId() apiKeyId: string, @Body() dto: ExtractBatchDto) {
     return this.extractService.extractFromTexts(apiKeyId, dto.texts, {
       userId: dto.userId,
       entityTypes: dto.entityTypes,
       relationTypes: dto.relationTypes,
       minConfidence: dto.minConfidence,
-      saveToGraph: dto.saveToGraph ?? true,
+      saveToGraph: dto.saveToGraph,
     });
   }
 
   /**
-   * 预览提取结果（不保存）
-   * POST /api/v1/extract/preview
+   * Preview extraction result (without saving)
    */
   @Post('preview')
-  async preview(
-    @Body() dto: PreviewDto,
-  ) {
+  @ApiOperation({ summary: 'Preview extraction result' })
+  async preview(@Body() dto: PreviewDto) {
     return this.extractService.preview(dto.text, {
       entityTypes: dto.entityTypes,
       relationTypes: dto.relationTypes,

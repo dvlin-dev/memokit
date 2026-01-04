@@ -1,5 +1,8 @@
 /**
  * [POS]: Relation API Controller
+ *
+ * [INPUT]: CreateRelationDto, ListRelationQueryDto
+ * [OUTPUT]: Relation responses
  */
 
 import {
@@ -13,13 +16,25 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiSecurity,
+  ApiParam,
+} from '@nestjs/swagger';
 import { RelationService } from './relation.service';
-import { CreateRelationDto } from './dto';
+import {
+  CreateRelationDto,
+  CreateRelationBatchDto,
+  ListRelationQueryDto,
+} from './dto';
 import { ApiKeyGuard } from '../api-key/api-key.guard';
 import { QuotaGuard } from '../quota/quota.guard';
 import { ApiKeyDataIsolationInterceptor } from '../common/interceptors/api-key-isolation.interceptor';
 import { ApiKeyId } from '../common/decorators/api-key.decorator';
 
+@ApiTags('Relation')
+@ApiSecurity('apiKey')
 @Controller({ path: 'relations', version: '1' })
 @UseGuards(ApiKeyGuard, QuotaGuard)
 @UseInterceptors(ApiKeyDataIsolationInterceptor)
@@ -27,10 +42,10 @@ export class RelationController {
   constructor(private readonly relationService: RelationService) {}
 
   /**
-   * 创建关系
-   * POST /api/v1/relations
+   * Create a relation
    */
   @Post()
+  @ApiOperation({ summary: 'Create a relation between entities' })
   async create(
     @ApiKeyId() apiKeyId: string,
     @Body() dto: CreateRelationDto,
@@ -39,41 +54,39 @@ export class RelationController {
   }
 
   /**
-   * 批量创建关系
-   * POST /api/v1/relations/batch
+   * Batch create relations
    */
   @Post('batch')
+  @ApiOperation({ summary: 'Batch create relations' })
   async createMany(
     @ApiKeyId() apiKeyId: string,
-    @Body() dtos: CreateRelationDto[],
+    @Body() dto: CreateRelationBatchDto,
   ) {
-    return this.relationService.createMany(apiKeyId, dtos);
+    return this.relationService.createMany(apiKeyId, dto);
   }
 
   /**
-   * 列出关系
-   * GET /api/v1/relations?userId=xxx
+   * List relations for a user
    */
   @Get()
+  @ApiOperation({ summary: 'List relations for a user' })
   async list(
     @ApiKeyId() apiKeyId: string,
-    @Query('userId') userId: string,
-    @Query('type') type?: string,
-    @Query('limit') limit?: number,
-    @Query('offset') offset?: number,
+    @Query() query: ListRelationQueryDto,
   ) {
-    return this.relationService.list(apiKeyId, userId, {
-      type,
-      limit,
-      offset,
+    return this.relationService.list(apiKeyId, query.userId, {
+      type: query.type,
+      limit: query.limit,
+      offset: query.offset,
     });
   }
 
   /**
-   * 获取实体的关系
-   * GET /api/v1/relations/entity/:entityId
+   * Get relations for an entity
    */
   @Get('entity/:entityId')
+  @ApiOperation({ summary: 'Get all relations for an entity' })
+  @ApiParam({ name: 'entityId', description: 'Entity ID' })
   async getByEntity(
     @ApiKeyId() apiKeyId: string,
     @Param('entityId') entityId: string,
@@ -82,10 +95,11 @@ export class RelationController {
   }
 
   /**
-   * 删除关系
-   * DELETE /api/v1/relations/:id
+   * Delete a relation
    */
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a relation' })
+  @ApiParam({ name: 'id', description: 'Relation ID' })
   async delete(
     @ApiKeyId() apiKeyId: string,
     @Param('id') id: string,
