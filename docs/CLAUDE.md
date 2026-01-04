@@ -1,6 +1,6 @@
 # Memai
 
-> See root [`AGENTS.md`](../AGENTS.md) for the main AI Agent guide.
+> See root [`CLAUDE.md`](../CLAUDE.md) for the main AI Agent guide.
 
 ## Documentation Structure
 
@@ -8,20 +8,22 @@
 
 ## 核心同步协议（强制）
 
-1. **原子更新规则**：任何代码变更完成后，必须同步更新相关目录的 AGENTS.md
-2. **递归触发**：文件变更 → 更新文件 Header → 更新所属目录 AGENTS.md → （若影响全局）更新根 AGENTS.md
-3. **分形自治**：任何子目录的 AGENTS.md 都应让 AI 能独立理解该模块的上下文
+1. **原子更新规则**：任何代码变更完成后，必须同步更新相关目录的 CLAUDE.md
+2. **递归触发**：文件变更 → 更新文件 Header → 更新所属目录 CLAUDE.md → （若影响全局）更新根 CLAUDE.md
+3. **分形自治**：任何子目录的 CLAUDE.md 都应让 AI 能独立理解该模块的上下文
 4. **禁止历史包袱**：不做向后兼容，无用代码直接删除/重构，不保留废弃注释
+
+> **命名规范**: `CLAUDE.md` 为主文件。`AGENTS.md` 为指向 `CLAUDE.md` 的软链接（兼容 agents.md 规范）。
 
 ## 项目结构
 
 | 目录 | 说明 | 详细规范 |
 | --- | --- | --- |
-| `apps/server/` | 后端 API + Memory 服务（NestJS） | → `apps/server/AGENTS.md` |
-| `apps/console/` | 用户控制台（React + Vite） | → `apps/console/AGENTS.md` |
-| `apps/admin/` | 管理后台（React + Vite） | → `apps/admin/AGENTS.md` |
-| `packages/ui/` | 共享 UI 组件库 | → `packages/ui/AGENTS.md` |
-| `packages/shared-types/` | 共享类型定义 | → `packages/shared-types/AGENTS.md` |
+| `apps/server/` | 后端 API + Memory 服务（NestJS） | → `apps/server/CLAUDE.md` |
+| `apps/console/` | 用户控制台（React + Vite） | → `apps/console/CLAUDE.md` |
+| `apps/admin/` | 管理后台（React + Vite） | → `apps/admin/CLAUDE.md` |
+| `packages/ui/` | 共享 UI 组件库 | → `packages/ui/CLAUDE.md` |
+| `packages/shared-types/` | 共享类型定义 | → `packages/shared-types/CLAUDE.md` |
 
 ### 技术栈速查
 
@@ -88,11 +90,31 @@ GET    /v1/relations          # 列表查询
 DELETE /v1/relations/:id      # 删除关系
 ```
 
-## 功能文档
+## 文档目录
 
-- **技术规范**（核心参考文档）：→ [`TECH_SPEC.md`](./TECH_SPEC.md)
-- **测试规范**：→ [`TEST_SPEC.md`](./TEST_SPEC.md)
-- **改造计划**：→ [`CONSOLE_REFACTOR_PLAN.md`](./CONSOLE_REFACTOR_PLAN.md)
+### 核心规范
+| 文档 | 说明 |
+|------|------|
+| [`TECH_SPEC.md`](./TECH_SPEC.md) | 技术架构 - 模块、流程、数据模型 |
+| [`TEST_SPEC.md`](./TEST_SPEC.md) | 测试规范 - 分层策略、命名、工具 |
+
+### API 规范 (`api/`)
+| 文档 | 说明 |
+|------|------|
+| [`unified-response.md`](./api/unified-response.md) | 统一响应格式 |
+| [`versioning.md`](./api/versioning.md) | API 路由结构 |
+
+### 迁移指南 (`migration/`)
+| 文档 | 说明 |
+|------|------|
+| [`scalar-openapi.md`](./migration/scalar-openapi.md) | Scalar + Zod 迁移 |
+| [`console-refactor.md`](./migration/console-refactor.md) | Console 改造记录 |
+
+### 功能规范 (`specs/`)
+| 文档 | 说明 |
+|------|------|
+| [`claude-md.md`](./specs/claude-md.md) | CLAUDE.md 规范 |
+| [`oembed-api.md`](./specs/oembed-api.md) | oEmbed API 设计（规划中）|
 
 ## 协作总则
 
@@ -106,7 +128,7 @@ DELETE /v1/relations/:id      # 删除关系
 1. **计划**：改动前给出最小范围 plan，说明动机与风险
 2. **实施**：聚焦单一问题，不盲改
 3. **校验**：本地跑 lint/typecheck（`pnpm typecheck`），通过再提交
-4. **同步**：更新相关 AGENTS.md（本条强制）
+4. **同步**：更新相关 CLAUDE.md（本条强制）
 
 ## 文件头注释规范
 
@@ -127,7 +149,7 @@ DELETE /v1/relations/:id      # 删除关系
  * [OUTPUT]: MemoryResponse - Memory 结果或错误
  * [POS]: Memory 服务核心，被 memory.controller.ts 调用
  *
- * [PROTOCOL]: 本文件变更时，必须更新此 Header 及所属目录 AGENTS.md
+ * [PROTOCOL]: 本文件变更时，必须更新此 Header 及所属目录 CLAUDE.md
  */
 ```
 
