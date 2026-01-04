@@ -1,5 +1,9 @@
 /**
- * [POS]: Entity Service
+ * [INPUT]: apiKeyId, CreateEntityDto, ListEntitiesByUserOptions
+ * [OUTPUT]: Entity, EntityWithApiKeyName[], pagination data
+ * [POS]: Entity business logic layer - CRUD operations for knowledge graph entities
+ *
+ * [PROTOCOL]: When modifying this file, you MUST update this header and apps/server/src/entity/CLAUDE.md
  */
 
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';

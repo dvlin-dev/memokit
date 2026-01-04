@@ -1,3 +1,11 @@
+/**
+ * [PROVIDES]: Redis client, cache operations, distributed locks, rate limiting, concurrency control
+ * [DEPENDS]: REDIS_URL environment variable, ioredis
+ * [POS]: Redis access layer - caching, locking, rate limiting, and concurrency management
+ *
+ * [PROTOCOL]: When modifying this file, you MUST update this header and apps/server/CLAUDE.md
+ */
+
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';

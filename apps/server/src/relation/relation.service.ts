@@ -1,5 +1,9 @@
 /**
- * [POS]: Relation Service
+ * [INPUT]: apiKeyId, CreateRelationDto, relation queries
+ * [OUTPUT]: Relation, RelationWithEntities[], pagination data
+ * [POS]: Relation business logic layer - manages relationships between entities in knowledge graph
+ *
+ * [PROTOCOL]: When modifying this file, you MUST update this header and apps/server/src/relation/CLAUDE.md
  */
 
 import { Injectable, Logger } from '@nestjs/common';

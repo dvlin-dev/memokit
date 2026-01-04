@@ -1,3 +1,11 @@
+/**
+ * [INPUT]: All feature modules, ConfigModule
+ * [OUTPUT]: Root NestJS module with global providers
+ * [POS]: Root module - registers all 25 feature modules, global pipes, interceptors
+ *
+ * [PROTOCOL]: When modifying this file, you MUST update this header and apps/server/CLAUDE.md
+ */
+
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { APP_PIPE, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';

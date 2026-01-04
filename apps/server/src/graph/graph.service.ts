@@ -1,5 +1,9 @@
 /**
- * [POS]: Graph Service - Knowledge Graph Traversal and Querying
+ * [INPUT]: apiKeyId, entityId, TraversalOptions
+ * [OUTPUT]: GraphData { nodes: GraphNode[], edges: GraphEdge[] }
+ * [POS]: Graph traversal service - navigates and queries the knowledge graph structure
+ *
+ * [PROTOCOL]: When modifying this file, you MUST update this header and apps/server/src/graph/CLAUDE.md
  */
 
 import { Injectable, Logger } from '@nestjs/common';

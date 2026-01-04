@@ -1,5 +1,9 @@
 /**
- * Memai API 路径常量
+ * [PROVIDES]: AUTH_API, USER_API, PAYMENT_API, CONSOLE_API, PUBLIC_API, HEALTH_API, ADMIN_API
+ * [DEPENDS]: None (pure constants)
+ * [POS]: API endpoint path constants - centralized route definitions for all API calls
+ *
+ * [PROTOCOL]: When modifying this file, you MUST update this header and apps/console/CLAUDE.md
  */
 
 export const AUTH_API = {

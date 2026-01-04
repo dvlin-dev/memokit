@@ -1,6 +1,9 @@
 /**
- * 认证状态管理
- * 使用 Bearer Token 认证，token 和用户信息存储在 localStorage
+ * [PROVIDES]: useAuthStore, getAuthUser, getAuthToken
+ * [DEPENDS]: zustand, zustand/middleware (persist)
+ * [POS]: Authentication state management - stores user and token in localStorage
+ *
+ * [PROTOCOL]: When modifying this file, you MUST update this header and apps/console/CLAUDE.md
  */
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'

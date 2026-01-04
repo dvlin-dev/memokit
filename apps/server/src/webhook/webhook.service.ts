@@ -1,6 +1,9 @@
 /**
- * Webhook Service
- * Webhook 管理业务逻辑
+ * [INPUT]: userId, CreateWebhookDto, UpdateWebhookDto
+ * [OUTPUT]: Webhook, WebhookDelivery[], pagination data
+ * [POS]: Webhook management service - CRUD operations and delivery log tracking
+ *
+ * [PROTOCOL]: When modifying this file, you MUST update this header and apps/server/src/webhook/CLAUDE.md
  */
 
 import {

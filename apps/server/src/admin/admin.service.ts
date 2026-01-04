@@ -1,6 +1,9 @@
 /**
- * Admin Service
- * 管理后台业务逻辑
+ * [INPUT]: UserQuery, SubscriptionQuery, OrderQuery, UpdateUserDto, UpdateSubscriptionDto
+ * [OUTPUT]: Dashboard stats, paginated lists (users, subscriptions, orders)
+ * [POS]: Admin dashboard service - system statistics, user/subscription/order management
+ *
+ * [PROTOCOL]: When modifying this file, you MUST update this header and apps/server/src/admin/CLAUDE.md
  */
 
 import { Injectable, NotFoundException } from '@nestjs/common';

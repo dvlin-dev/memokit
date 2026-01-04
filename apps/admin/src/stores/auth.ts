@@ -1,6 +1,9 @@
 /**
- * 认证状态管理
- * Admin 使用 Bearer Token 认证
+ * [PROVIDES]: useAuthStore, getAuthUser, getAuthToken, User
+ * [DEPENDS]: zustand, zustand/middleware (persist)
+ * [POS]: Admin authentication state management - stores admin user and token in localStorage
+ *
+ * [PROTOCOL]: When modifying this file, you MUST update this header and apps/admin/CLAUDE.md
  */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';

@@ -1,3 +1,11 @@
+/**
+ * [INPUT]: Environment variables, AppModule
+ * [OUTPUT]: Running NestJS application with OpenAPI docs
+ * [POS]: Application bootstrap - configures CORS, versioning, OpenAPI, global interceptors/filters
+ *
+ * [PROTOCOL]: When modifying this file, you MUST update this header and apps/server/CLAUDE.md
+ */
+
 import { NestFactory, Reflector } from '@nestjs/core';
 import { Logger, VersioningType, type INestApplication } from '@nestjs/common';
 import { SwaggerModule } from '@nestjs/swagger';

@@ -1,6 +1,9 @@
 /**
- * User Service
- * 用户相关业务逻辑
+ * [INPUT]: userId, UpdateProfileDto, ChangePasswordDto, DeleteAccountDto
+ * [OUTPUT]: UserProfile, void
+ * [POS]: User management service - profile CRUD, password changes, account deletion
+ *
+ * [PROTOCOL]: When modifying this file, you MUST update this header and apps/server/src/user/CLAUDE.md
  */
 
 import {

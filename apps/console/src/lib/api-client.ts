@@ -1,6 +1,9 @@
 /**
- * API 客户端
- * 使用 Bearer Token 认证，统一错误处理，自动解包响应
+ * [PROVIDES]: apiClient, ApiError, API_BASE_URL
+ * [DEPENDS]: @memai/shared-types, stores/auth
+ * [POS]: Centralized API client with Bearer token auth, error handling, response unwrapping
+ *
+ * [PROTOCOL]: When modifying this file, you MUST update this header and apps/console/CLAUDE.md
  */
 import { useAuthStore, getAuthToken } from '../stores/auth'
 import type { PaginationMeta, ApiErrorResponse as ApiErrorResponseType } from '@memai/shared-types'

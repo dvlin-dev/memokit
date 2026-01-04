@@ -1,5 +1,9 @@
 /**
- * [POS]: Extract Service - Entity and Relation Extraction from Text
+ * [INPUT]: apiKeyId, text content, ExtractOptions
+ * [OUTPUT]: ExtractionResult { entities, relations, rawExtraction }
+ * [POS]: LLM-powered extraction service - extracts entities and relations from unstructured text
+ *
+ * [PROTOCOL]: When modifying this file, you MUST update this header and apps/server/src/extract/CLAUDE.md
  */
 
 import { Injectable, Logger } from '@nestjs/common';
